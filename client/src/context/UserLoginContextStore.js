@@ -15,7 +15,7 @@ function UserLoginContextStore({children}){
     
     // userlogin 
     const loginUser=(userCredObj)=>{
-        axios.post(`/user-api/user-login`,userCredObj)
+        axios.post(`https://lchess.onrender.com/user-api/user-login`,userCredObj)
         .then(response=>{
             if(response.data.message==="success"){
                 setCurrentUser({...response.data.user})
