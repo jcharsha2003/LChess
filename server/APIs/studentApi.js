@@ -102,7 +102,7 @@ studentapp.delete(
     //if username is valid
     else {
       if (userOfDB?.role === "admin") {
-        if (!request.params._id ) {
+        if (!request.params.Client_ID ) {
           return response.status(400).send({ message: "Student ID is required" });
         }
 
