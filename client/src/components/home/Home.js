@@ -5,14 +5,14 @@ import { useState, useEffect } from "react";
 // import { Environment, OrbitControls } from "@react-three/drei";
 // import { Canvas } from "@react-three/fiber";
 import "./Home.css";
-import { Suspense, useRef } from "react";
+// import { Suspense, useRef } from "react";
 
 // import { Stage } from "@react-three/drei";
 // import { Instances, Horse } from "../Horse/Horse";
 
 function Home() {
   //const ref = useRef()
-  //const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 ;
   return (
     <div className="row container-fluid ">
@@ -26,13 +26,13 @@ function Home() {
         </div>
   
 </div>
-      // <div className="col-md-5 loader-container ">
-//      {isLoading && 
-//       <div className="loader ">
-//   <div className="inner one"></div>
-//   <div className="inner two"></div>
-//   <div className="inner three"></div>
-// </div>}
+      <div className="col-md-5 loader-container ">
+     {isLoading && 
+      <div className="loader ">
+  <div className="inner one"></div>
+  <div className="inner two"></div>
+  <div className="inner three"></div>
+</div>}
         // <div className="home ">
         //   <Canvas
         //     shadows
@@ -60,7 +60,7 @@ function Home() {
         //     />
         //   </Canvas>
         // </div>
-      // </div>
+      </div>
     </div>
   );
 }
