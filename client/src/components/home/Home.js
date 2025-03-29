@@ -2,17 +2,17 @@ import React from "react";
 
 import { useState, useEffect } from "react";
 
-import { Environment, OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+// import { Environment, OrbitControls } from "@react-three/drei";
+// import { Canvas } from "@react-three/fiber";
 import "./Home.css";
 import { Suspense, useRef } from "react";
 
-import { Stage } from "@react-three/drei";
-import { Instances, Horse } from "../Horse/Horse";
+// import { Stage } from "@react-three/drei";
+// import { Instances, Horse } from "../Horse/Horse";
 
 function Home() {
-  const ref = useRef()
-  const [isLoading, setIsLoading] = useState(true);
+  //const ref = useRef()
+  //const [isLoading, setIsLoading] = useState(true);
 ;
   return (
     <div className="row container-fluid ">
@@ -26,41 +26,41 @@ function Home() {
         </div>
   
 </div>
-      <div className="col-md-5 loader-container ">
-     {isLoading && 
-      <div className="loader ">
-  <div className="inner one"></div>
-  <div className="inner two"></div>
-  <div className="inner three"></div>
-</div>}
-        <div className="home ">
-          <Canvas
-            shadows
-            dpr={[1, 2]}
-            camera={{ fov: 50, position: [0, 0, 16] }}
-          >
-            <Suspense fallback={null}>
-              <Stage
-                controls={ref}
-                preset="rembrandt"
-                intensity={1}
-                environment="warehouse"
-                adjustCamera={false}
-              >
-                <Instances onLoad={() => setIsLoading(false)}>
-                  <Horse />
-                </Instances>
-              </Stage>
-            </Suspense>
-            <OrbitControls
-              ref={ref}
-              autoRotate
-              enableZoom={false}
-              enablePan={false}
-            />
-          </Canvas>
-        </div>
-      </div>
+      // <div className="col-md-5 loader-container ">
+//      {isLoading && 
+//       <div className="loader ">
+//   <div className="inner one"></div>
+//   <div className="inner two"></div>
+//   <div className="inner three"></div>
+// </div>}
+        // <div className="home ">
+        //   <Canvas
+        //     shadows
+        //     dpr={[1, 2]}
+        //     camera={{ fov: 50, position: [0, 0, 16] }}
+        //   >
+        //     <Suspense fallback={null}>
+        //       <Stage
+        //         controls={ref}
+        //         preset="rembrandt"
+        //         intensity={1}
+        //         environment="warehouse"
+        //         adjustCamera={false}
+        //       >
+        //         <Instances onLoad={() => setIsLoading(false)}>
+        //           <Horse />
+        //         </Instances>
+        //       </Stage>
+        //     </Suspense>
+        //     <OrbitControls
+        //       ref={ref}
+        //       autoRotate
+        //       enableZoom={false}
+        //       enablePan={false}
+        //     />
+        //   </Canvas>
+        // </div>
+      // </div>
     </div>
   );
 }
