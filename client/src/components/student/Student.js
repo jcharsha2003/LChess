@@ -422,7 +422,7 @@ let finalStudent = {
   }
   const deleteStudent = () => {
     axios
-      .delete(`https://lchess.onrender.com/student-api/delete-student/${student?._id}`, {
+      .delete(`https://lchess.onrender.com/student-api/delete-student/${student?.Client_ID}`, {
         headers: { Authorization: "Bearer " + token },
       })
       .then((response) => {
