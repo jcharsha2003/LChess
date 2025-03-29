@@ -25,7 +25,7 @@ const Register = () => {
     };
 
     axios
-      .post(`/user-api/register-user`, newUser)
+      .post(`https://lchess.onrender.com/user-api/register-user`, newUser)
       .then((response) => {
         if (response.status === 201) {
           navigate("/login");
