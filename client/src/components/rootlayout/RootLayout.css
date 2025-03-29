@@ -1,0 +1,10 @@
+
+
+
+.root_layout{
+  flex-grow: 1;
+}
+.root_layout .main{
+ min-height: calc(100vh - 70px);
+}
+
