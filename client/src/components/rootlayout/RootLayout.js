@@ -18,7 +18,7 @@ function RootLayout() {
 
     if (token && !userLoginStatus) {
       axios
-      .post(`/user-api/verify-user`,{},{
+      .post(`https://lchess.onrender.com/user-api/verify-user`,{},{
         headers: { Authorization: "Bearer " + token },
       })
       .then((response) => {
