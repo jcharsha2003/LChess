@@ -80,7 +80,7 @@ studentapp.put(
   })
 );
 studentapp.delete(
-  "/delete-student/:_id",
+  "/delete-student/:Client_ID",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
     // get userCollection
@@ -106,9 +106,9 @@ studentapp.delete(
           return response.status(400).send({ message: "Student ID is required" });
         }
 
-        const studentId = new ObjectId(request.params._id );
         
-        const result = await studentCollection.deleteOne({ _id: studentId });
+        
+        const result = await studentCollection.deleteOne({ Client_ID: request.params.Client_ID });
 
         if (result.deletedCount > 0) {
           response.status(200).send({ message: "Student has been deleted successfully" });
