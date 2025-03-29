@@ -164,7 +164,7 @@ const Student = () => {
       }
 
       axios
-        .put(`/student-api/update-student`, modifiedUser, {
+        .put(`https://lchess.onrender.com/student-api/update-student`, modifiedUser, {
           headers: { Authorization: "Bearer " + token },
         })
         .then((response) => {
@@ -254,7 +254,7 @@ const Student = () => {
   };
   const getStudents = () => {
     axios
-      .get(`/student-api/get-students`, {
+      .get(`https://lchess.onrender.com/student-api/get-students`, {
         headers: { Authorization: "Bearer " + token },
       })
       .then((response) => {
@@ -351,7 +351,7 @@ let finalStudent = {
 
       console.log(finalStudent);
       axios
-      .post(`/student-api/add-student`, finalStudent,{
+      .post(`https://lchess.onrender.com/student-api/add-student`, finalStudent,{
         headers: { Authorization: "Bearer " + token },
       }) 
       .then((response) => {
@@ -422,7 +422,7 @@ let finalStudent = {
   }
   const deleteStudent = () => {
     axios
-      .delete(`/student-api/delete-student/${student?._id}`, {
+      .delete(`https://lchess.onrender.com/student-api/delete-student/${student?._id}`, {
         headers: { Authorization: "Bearer " + token },
       })
       .then((response) => {
