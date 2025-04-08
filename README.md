@@ -1,12 +1,12 @@
 
-ADD .env in both client and server folder 
-in client, .env has the 
+ADD .env in both client and server folder ,
+### in client, .env has the 
 ```
 REACT_APP_API_URL=Domain_name
 ```
-in server , .env has the env of mongodb connection url 
+### in server , .env has the env of mongodb connection url 
 
-Below are commands to run our Application 
+## Below are commands to run our Application 
 ```Client
 cd client
 npm i 
