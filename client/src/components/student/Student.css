@@ -1,0 +1,144 @@
+.s-col{
+    background-color: white;
+box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.37);
+backdrop-filter: blur( 4px );
+-webkit-backdrop-filter: blur( 4px );
+border-radius: 10px;
+border: 1px solid rgba(247, 243, 243, 0.18);
+overflow: hidden;
+width: 70%;
+
+position: relative;
+
+}
+
+
+  .s-col:hover .ag-courses-item_bg {
+    -webkit-transform: scale(10);
+    -ms-transform: scale(10);
+    transform: scale(10);
+  
+  }
+ 
+  .s-col .icon-stu ,.s-col .stu-context{
+    color: initial; /* Default color */
+    transition: color 1s ease-out; /* Slow transition back */
+}
+
+.s-col:hover .icon-stu,.s-col:hover .stu-context {
+    color: white; /* Instant white color on hover */
+    transition: color 0s; /* Instantly applies white */
+    z-index: 2;
+    position: relative;
+}
+
+/* Ensures transition is applied only when moving away */
+.s-col:hover .icon-stu,
+.s-col .icon-stu,
+.s-col:hover .stu-context,
+.s-col .stu-context{
+    transition: color 1s ease-out;
+}
+ 
+  .ag-courses-item_bg {
+    height: 7rem;
+    width: 7rem;
+    background-color: black;
+   
+   z-index: 1;
+    position: absolute;
+    top: -75px;
+    right: -75px;
+  
+    border-radius: 50%;
+  
+    -webkit-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    transition: all 1s ease;
+  }
+  
+ 
+  .stu-context{
+    font-family: 'Cinzel', 'Lora', 'Playfair Display', 'Unna', 'Garamond', serif;
+  }
+  
+.next-session{
+  font-family: 'Cinzel', 'Lora', 'Playfair Display', 'Unna', 'Garamond', serif;
+  
+  box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.37);
+backdrop-filter: blur( 4px );
+-webkit-backdrop-filter: blur( 4px );
+border-radius: 10px;
+border: 1px solid rgba(247, 243, 243, 0.18);
+overflow-x: scroll;
+
+  
+}
+
+.field{
+  position: relative;
+  width: 70%;
+}
+
+.field i{
+  position: absolute;
+  right: 1rem;
+ 
+  font-size: 1.5rem;
+  top: 2.5rem;
+}
+.field .i{
+  position: absolute;
+  right: 1rem;
+ 
+  font-size: 1.5rem;
+  top: 2.5rem;
+}
+.field textarea{
+width: 80%;
+}
+
+  /* table styling  */
+  .s-Student{
+    width: 77vw;
+    
+}
+
+/* edit student form */
+.ecat {
+  display: grid;
+  place-items: center; /* Centers horizontally & vertically */
+}
+
+.ecat .form-floating {
+  width: 70%;
+  max-width: 500px;
+}
+
+.inputbox4 input {
+  width: 80%;
+  margin-bottom: 2rem;
+
+}
+
+.inputbox4 i {
+  position: absolute;
+  right: 1rem;
+
+  font-size: 1.2em;
+  top: 20px;
+}
+.ecat .joining-date{
+  
+  margin-right: 15%;
+  position: relative;
+  width: 55%;
+}
+.joining-date i{
+  position: absolute;
+  right: 0rem;
+  left: 100%;
+  font-size: 1.2em;
+  top: 60%;
+  margin-left: 15%;
+}
