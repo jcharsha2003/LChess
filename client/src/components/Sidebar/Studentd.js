@@ -75,9 +75,9 @@ const Studentd = (props) => {
     transformOrigin={{ horizontal: "right", vertical: "top" }} // Changes how the menu expands
     anchorOrigin={{ horizontal: "right", vertical: "top" }} // Moves anchor point to top-left
   >
-    <MenuItem onClick={handleTheory}>Therory Sessions</MenuItem>
+    <MenuItem onClick={handleTheory}>Batch Form</MenuItem>
     <Divider />
-    <MenuItem onClick={handlePractice}>Practice Sessions</MenuItem>
+    <MenuItem onClick={handlePractice}>Theory & Practice Sessions</MenuItem>
   </Menu>):(<Menu
     anchorEl={anchorEl}
     id="account-menu"
@@ -111,9 +111,9 @@ const Studentd = (props) => {
     transformOrigin={{ horizontal: "left", vertical: "top" }} // Changes how the menu expands
     anchorOrigin={{ horizontal: "left", vertical: "top" }} // Moves anchor point to top-left
   >
-    <MenuItem onClick={handleTheory}>Therory Sessions</MenuItem>
+    <MenuItem onClick={handleTheory}>Batch Form</MenuItem>
     <Divider />
-    <MenuItem onClick={handlePractice}>Practice Sessios</MenuItem>
+    <MenuItem onClick={handlePractice}>Theory & Practice Sessions</MenuItem>
   </Menu>)
  }
       

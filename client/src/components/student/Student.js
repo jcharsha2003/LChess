@@ -9,6 +9,8 @@ import { toast, Bounce } from "react-toastify";
 import { MdOutlineEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 // Table related imports
+import { BsPersonRaisedHand } from "react-icons/bs";
+import { MultiSelect } from "primereact/multiselect";
 import { FaFileExport } from "react-icons/fa6";
 import { FaUserPlus } from "react-icons/fa";
 import { Toolbar } from "primereact/toolbar";
@@ -66,13 +68,18 @@ const Student = () => {
       Total_Paid_to_Date: 0,
       New_Payment_Made: false,
     },
+    status: "Active",
   };
   const [studentDialog, setStudentDialog] = useState(false);
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [selectedCustomers, setSelectedCustomers] = useState(null);
   const [student, setStudent] = useState(emptyStudent);
   const [submitted, setSubmitted] = useState(false);
   const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
+  const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
+  const hideDeleteProductsDialog = () => {
+    setDeleteProductsDialog(false);
+};
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     Client_ID: {
@@ -124,6 +131,7 @@ const Student = () => {
       operator: FilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
     },
+     status: { value: null, matchMode: FilterMatchMode.IN },
   });
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   let [error, setError] = useState("");
@@ -147,6 +155,7 @@ const Student = () => {
     setValue("Email_Address", student?.Email_Address);
     setValue("Address", student?.Address);
     setValue("Coach", student?.Coach);
+    setValue("status", student?.status);
     setValue("_id", student?._id);
   };
   const confirmDeleteProduct = (student) => {
@@ -502,6 +511,75 @@ if (existing) {
       });
   };
 
+
+  const deleteStudents = () => {
+    axios
+  .post(`${process.env.REACT_APP_API_URL}/student-api/delete-students`, 
+    { students: selectedCustomers },
+    {
+      headers: { Authorization: "Bearer " + token },
+    }
+  )
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+          getStudents();
+        }
+      })
+      .catch((err) => {
+        if (err.response) {
+          setError(err.message);
+          toast.error(err.response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+          console.log(err.response);
+        } else if (err.request) {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        } else {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      });
+  };
   useEffect(() => {
     getStudents();
   }, []);
@@ -627,6 +705,30 @@ if (existing) {
       </button>
     </React.Fragment>
   );
+  const deleteProductsDialogFooter = (
+    <React.Fragment>
+      <button
+        className="icon-button horse "
+        style={{ padding: "1.3rem" }}
+        onClick={hideDeleteProductsDialog}
+      >
+        <GiCancel className="icon-horse" /> <span></span>
+      </button>
+
+      <button
+        className="icon-button1 horse1 border-danger"
+        style={{ padding: "1.3rem" }}
+        onClick={() => {
+          if (window.confirm("Are you sure you want to delete this student?")) {
+            deleteStudents();
+            hideDeleteProductsDialog();
+          }
+        }}
+      >
+        <RiDeleteBinFill className="icon-horse1" /> <span></span>
+      </button>
+    </React.Fragment>
+  );
   const openNew = () => {
     setStudent(emptyStudent);
     setIsEditing(false);
@@ -647,6 +749,49 @@ if (existing) {
   const exportCSV = () => {
     dt.current.exportCSV();
   };
+  const [statuses] = useState(["Active", "Inactive"]);
+    const representativeBodyTemplate = (rowData) => {
+      const status = rowData.status;
+  
+      const badgeClass =
+        status === "Active"
+          ? "badge bg-success px-3 py-2"
+          : "badge bg-danger px-3 py-2";
+  
+      return (
+        <div className="d-flex align-items-center">
+          <span className={badgeClass}>{status}</span>
+        </div>
+      );
+    };
+    const representativeFilterTemplate = (options) => {
+      return (
+        <React.Fragment>
+          <div className="mb-3 font-bold">Status Picker</div>
+          <MultiSelect
+            value={options.value}
+            options={statuses}
+            itemTemplate={representativesItemTemplate}
+            onChange={(e) => options.filterCallback(e.value)}
+            placeholder="Any"
+            className="p-column-filter"
+          />
+        </React.Fragment>
+      );
+    };
+  
+    const representativesItemTemplate = (option) => {
+      return (
+        <div className="flex align-items-center ">
+          <span>{option}</span>
+        </div>
+      );
+    };
+
+
+  const confirmDeleteSelected = () => {
+    setDeleteProductsDialog(true);
+};
 
   const leftToolbarTemplate = () => {
     return (
@@ -659,6 +804,15 @@ if (existing) {
         >
           <FaUserPlus className="icon-horse" /> <span></span>
         </button>
+        <button
+            className="icon-button1 horse1 border-danger dss"
+            style={{ padding: "1.3rem" }}
+            onClick={confirmDeleteSelected}
+            disabled={!selectedCustomers || !selectedCustomers.length}
+          >
+            <MdDelete className="icon-horse1" /> <span></span>
+          </button>
+        
       </div>
     );
   };
@@ -678,52 +832,17 @@ if (existing) {
   };
 
   const header = renderHeader();
+  console.log("Currently Selected Customers:", selectedCustomers);
   return (
     <div>
       <link
         rel="stylesheet"
         href="https://site-assets.fontawesome.com/releases/v6.4.0/css/all.css"
       ></link>
-      <div className=" text-center mx-5">
-        <div className="row mt-5  ">
-          <div className="col-lg-4 my-3  ">
-            <div className="card s-col mx-4">
-              <div className="card-body d-flex gap-3 ">
-                <FaUsers className="icon-stu fs-3" />
-                <div>
-                  <h5 className="stu-context">Total Students :</h5>
-                  <h5 className="stu-context">{students?.length}</h5>
-                </div>
+      <div className="text-center mx-5">
+  c
+</div>
 
-                <div class="ag-courses-item_bg"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-lg-4 my-3  ">
-            <div className="card s-col mx-4">
-              <div className="card-body d-flex gap-3">
-                <FaChartLine className="icon-stu fs-3 " />
-                <div>
-                  <h5 className="stu-context">Total Revenu </h5>
-                </div>
-                <div class="ag-courses-item_bg"></div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 my-3  ">
-            <div className="card s-col mx-4">
-              <div className="card-body d-flex gap-3">
-                <GiSandsOfTime className="icon-stu fs-3 " />
-                <div>
-                  <h5 className="stu-context">Due Payment </h5>
-                </div>
-                <div class="ag-courses-item_bg"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className=" card s-Student my-5 mx-auto d-block rounded shadow">
         <div className="card-body">
@@ -740,10 +859,11 @@ if (existing) {
             rows={10}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             rowsPerPageOptions={[5, 10, 20]}
-            dataKey="id"
-            selectionMode="checkbox"
+            dataKey="_id"
+            
             selection={selectedCustomers}
-            onSelectionChange={(e) => setSelectedCustomers(e.value)}
+            onSelectionChange={(e) => 
+              setSelectedCustomers(e.value)}
             filters={filters}
             filterDisplay="menu"
             globalFilterFields={[
@@ -761,6 +881,7 @@ if (existing) {
           >
             <Column
               selectionMode="multiple"
+              exportable={false}
               headerStyle={{ width: "3rem" }}
             ></Column>
             <Column
@@ -779,6 +900,18 @@ if (existing) {
               filterPlaceholder="Search by name"
               style={{ minWidth: "14rem" }}
             />
+             <Column
+                          field="status"
+                          header="Status"
+                          sortable
+                          filter
+                          filterPlaceholder="Search by Status"
+                          style={{ minWidth: "14rem" }}
+                          body={representativeBodyTemplate}
+                          filterElement={representativeFilterTemplate}
+                          showFilterMatchModes={false}
+                          filterMenuStyle={{ width: "14rem" }}
+                        />
             <Column
               field="Parent"
               header="Parent"
@@ -924,6 +1057,22 @@ if (existing) {
                 <p className=" text-danger">*enter Student full name</p>
               )}
             </div>
+             {/* status */}
+             <div className="field mb-5">
+            <i className="fa-solid fa-battery-full"></i>
+  <label htmlFor="status" className="mb-2">Status</label>
+  <select
+    id="status"
+    {...register("status", { required: "Please select a status" })}
+    defaultValue={student?.status} // Set from the existing value like "Active" or "Inactive"
+    className={`w-75  form-select ${errors.status ? "p-invalid" : ""}`}
+  >
+   
+    <option value="Active">Active</option>
+    <option value="Inactive">Inactive</option>
+  </select>
+  {errors.status && <small className="p-error">{errors.status.message}</small>}
+</div>
             <div className="inputbox4 form-floating">
               <i className="fa-solid fa-person-breastfeeding"></i>
 
@@ -1196,6 +1345,12 @@ if (existing) {
           )}
         </div>
       </Dialog>
+      <Dialog visible={deleteProductsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                    {student && <span>Are you sure you want to delete the selected Students?</span>}
+                </div>
+            </Dialog>
     </div>
   );
 };

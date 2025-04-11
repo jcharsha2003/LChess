@@ -41,66 +41,6 @@ batchapp.get(
 
 
 
-batchapp.get(
-  "/get-Tbatches",
-  verifytoken,
-  expressAsyncHandler(async (request, response) => {
-    // get usercollection
-    const batchCollection = request.app.get("batchCollection");
-
-    let batches = await batchCollection.find({ session: "theory" }).toArray();
-    //get user credentials from req
-    const userCollection = request.app.get("userCollection");
-    const userId = request.user.id;
-  
-    //verify username
-    let userOfDB = await userCollection.findOne({
-      _id: new ObjectId(userId),
-    }); //if username is invalid
-    if (userOfDB === null) {
-      response.status(200).send({ message: "Invalid User" });
-    }
-    //if username is valid
-    else {
-      if (userOfDB?.role === "admin") {
-       
-        response.status(200).send({ message: "users list", payload: batches });
-      } else {
-        response.status(200).send({ message: "UnAuthorized user" });
-      }
-    }
-  })
-);
-batchapp.get(
-  "/get-Pbatches",
-  verifytoken,
-  expressAsyncHandler(async (request, response) => {
-    // get usercollection
-    const batchCollection = request.app.get("batchCollection");
-
-    let batches = await batchCollection.find({ session: "practice" }).toArray();
-    //get user credentials from req
-    const userCollection = request.app.get("userCollection");
-    const userId = request.user.id;
-  
-    //verify username
-    let userOfDB = await userCollection.findOne({
-      _id: new ObjectId(userId),
-    }); //if username is invalid
-    if (userOfDB === null) {
-      response.status(200).send({ message: "Invalid User" });
-    }
-    //if username is valid
-    else {
-      if (userOfDB?.role === "admin") {
-       
-        response.status(200).send({ message: "users list", payload: batches });
-      } else {
-        response.status(200).send({ message: "UnAuthorized user" });
-      }
-    }
-  })
-);
 
 
 batchapp.put(
@@ -193,7 +133,7 @@ batchapp.delete(
 // json to java script obj
 batchapp.use(exp.json());
 batchapp.post(
-  "/add-Tbatch",
+  "/add-batch",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
     
@@ -225,7 +165,7 @@ batchapp.post(
 
         
         const existingStudent = await batchCollection.findOne({ 
-          session: "theory", 
+          
           batch_id: newuser.batch_id 
         });
 
@@ -256,69 +196,43 @@ if (existingStudent) {
     }
   })
 );
-// json to java script obj
-batchapp.use(exp.json());
+
+
+
+// delete selected students
 batchapp.post(
-  "/add-Pbatch",
+  "/delete-batches",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
-    
-
-    //    get user from req
-    const newuser = request.body;
-   
     const batchCollection = request.app.get("batchCollection");
-
- 
-    //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
 
-    //verify username
-    let userOfDB = await userCollection.findOne({
-      _id: new ObjectId(userId),
-    }); //if username is invalid
-    
-    if (userOfDB === null) {
-      response.status(200).send({ message: "Invalid User" });
+    // Verify user
+    const userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
+
+    if (!userOfDB) {
+      return response.status(200).send({ message: "Invalid User" });
     }
-    //if username is valid
-   
-    else {
-     
-      if (userOfDB?.role === "admin") {
-      
 
-        
-        const existingStudent = await batchCollection.findOne({ 
-          session: "practice", 
-          batch_id: newuser.batch_id 
-        });
+    if (userOfDB.role !== "admin") {
+      return response.status(200).send({ message: "UnAuthorized user" });
+    }
 
-if (existingStudent) {
-  const existingDays = existingStudent.session_days || [];
-  const newDays = newuser.session_days || [];
+    const { students } = request.body;
 
-  // Check for any overlapping days
-  const hasOverlap = newDays.some(day => existingDays.includes(day));
+    if (!students || !Array.isArray(students) || students.length === 0) {
+      return response.status(400).send({ message: "No Batches selected for deletion" });
+    }
 
-  if (hasOverlap) {
-    return response.status(400).json({ message: "Overlapping session days detected." });
-  }
-  
+    const idsToDelete = students.map((s) => new ObjectId(s._id));
+    
+    const result = await batchCollection.deleteMany({ _id: { $in: idsToDelete } });
 
-  const insertResult = await batchCollection.insertOne(newuser);
-
-  if (insertResult.insertedId) {
-    response.status(200).send({ message: "Batch has been added successfully" });
-  } else {
-    response.status(400).send({ message: "Failed to add student" });
-  }
-}
-
-      } else {
-        response.status(200).send({ message: "UnAuthorized user" });
-      }
+    if (result.deletedCount > 0) {
+      response.status(200).send({ message: `${result.deletedCount} batche(s) deleted successfully` });
+    } else {
+      response.status(400).send({ message: "No matching batches found to delete" });
     }
   })
 );

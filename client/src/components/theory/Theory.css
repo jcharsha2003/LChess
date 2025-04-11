@@ -1,0 +1,33 @@
+
+
+.title {
+  width: 100%;
+  margin-bottom: 2.5rem;
+  font-size: 3rem;
+  text-align: center;
+}
+
+
+.form-select{
+  width: 80%;
+}
+
+
+
+
+.inputbox6 input {
+  width: 80%;
+  margin-bottom: 3.5rem;
+}
+.inputbox6 select {
+  width: 80%;
+  margin-bottom: 3.5rem;
+}
+.inputbox6 i {
+  position: absolute;
+  right: 12%;
+
+  font-size: 1.2em;
+  top: 20px;
+}
+

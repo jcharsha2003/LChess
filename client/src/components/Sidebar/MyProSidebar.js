@@ -33,6 +33,8 @@ const MyProSidebar = () => {
 
   const { sidebarRTL, setSidebarRTL, sidebarImage } = useSidebarContext();
   const { collapseSidebar, toggleSidebar, collapsed, broken } = useProSidebar();
+
+  console.log(sidebarRTL,broken)
   return (
     <Box
       sx={{
@@ -41,7 +43,7 @@ const MyProSidebar = () => {
         height: "100vh",
         top: 0,
         bottom: 0,
-        zIndex: 1,
+        zIndex: 10,
       }}
     >
       <Sidebar breakPoint="md" rtl={sidebarRTL} className="s-glass ">
@@ -65,11 +67,11 @@ const MyProSidebar = () => {
                 <SwitchLeftOutlinedIcon
                   onClick={() => setSidebarRTL(!sidebarRTL)}
                 />
-              ) : (
+              ) : !broken ? (
                 <SwitchRightOutlinedIcon
                   onClick={() => setSidebarRTL(!sidebarRTL)}
                 />
-              )
+              ):(<div></div>)
             }
             style={{
               margin: "10px 0 20px 0",
@@ -161,7 +163,7 @@ const MyProSidebar = () => {
                         <GiTeacher className="s-icon fs-3" />
                       </div>
                       <div>
-                        <p className="s-p">Theory Sessions</p>
+                        <p className="s-p">Batch Form</p>
                       </div>
                     </>
                   </Link>
@@ -178,7 +180,7 @@ const MyProSidebar = () => {
                         <GiTabletopPlayers className="s-icon fs-2" />
                       </div>
                       <div>
-                        <p className="s-p">Practice Sessions</p>
+                        <p className="s-p">Theory & Practice </p>
                       </div>
                     </>
                   </Link>

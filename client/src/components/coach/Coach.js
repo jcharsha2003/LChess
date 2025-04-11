@@ -799,7 +799,7 @@ const Coach = () => {
                 rows={10}
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 rowsPerPageOptions={[5, 10, 20]}
-                dataKey="id"
+                dataKey="_id"
                 selectionMode="checkbox"
                 selection={selectedCustomers}
                 onSelectionChange={(e) => setSelectedCustomers(e.value)}

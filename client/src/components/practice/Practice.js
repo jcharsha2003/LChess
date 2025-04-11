@@ -9,7 +9,7 @@ import { toast, Bounce } from "react-toastify";
 import { MdOutlineEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 // Table related imports
-
+import { FaPersonBiking } from "react-icons/fa6";
 import { IoToday } from "react-icons/io5";
 import { HiUserGroup } from "react-icons/hi";
 import { FaChalkboardTeacher } from "react-icons/fa";
@@ -75,10 +75,14 @@ const Practice = () => {
    const [Coach, setCoach] = useState([]);
   const [batchDialog, setBatchDialog] = useState(false);
   const [batchDetails, setBatchDetails] = useState([]);
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [selectedCustomers, setSelectedCustomers] = useState(null);
   const [batch, setBatch] = useState(emptyBatch);
   const [submitted, setSubmitted] = useState(false);
   const [deleteBatchDialog, setDeleteBatchDialog] = useState(false);
+   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
+   const hideDeleteProductsDialog = () => {
+    setDeleteProductsDialog(false);
+};
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     batch_id: {
@@ -164,6 +168,74 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
     }));
   };
 
+   const deleteBatches = () => {
+      axios
+    .post(`${process.env.REACT_APP_API_URL}/batch-api/delete-batches`, 
+      { students: selectedCustomers },
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+        .then((response) => {
+          if (response.status === 200) {
+            toast.success(response.data.message, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+            getBatches();
+          }
+        })
+        .catch((err) => {
+          if (err.response) {
+            setError(err.message);
+            toast.error(err.response.data.message, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              transition: Bounce,
+            });
+            console.log(err.response);
+          } else if (err.request) {
+            setError(err.message);
+            toast.error(err.message, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              transition: Bounce,
+            });
+          } else {
+            setError(err.message);
+            toast.error(err.message, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              transition: Bounce,
+            });
+          }
+        });
+    };
   const actionBodyTemplate = (rowData) => {
     return (
       <React.Fragment>
@@ -267,7 +339,7 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
         };
   const getBatches = () => {
     axios
-      .get(`${process.env.REACT_APP_API_URL}/batch-api/get-Pbatches`, {
+      .get(`${process.env.REACT_APP_API_URL}/batch-api/get-batches`, {
         headers: { Authorization: "Bearer " + token },
       })
       .then((response) => {
@@ -420,74 +492,74 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
     }
   };
 
-  const addNewBatch = () => {
-    if (Object.keys(errors).length === 0) {
-      let modifiedBatch = getValues();
-      modifiedBatch.session = "theory";
+  // const addNewBatch = () => {
+  //   if (Object.keys(errors).length === 0) {
+  //     let modifiedBatch = getValues();
+      
 
-      if (modifiedBatch.start_date instanceof Date) {
-        modifiedBatch.start_date = modifiedBatch.start_date
-          .toISOString()
-          .split("T")[0];
-      }
-     console.log(modifiedBatch)
-      // Merge filled batch data with emptyBatch (ensuring all fields exist)
-      let finalBatch = {
-        ...emptyBatch, // Default values
-        ...modifiedBatch, // User input values
-        time_slots: {
-          ...emptyBatch.time_slots, // Default time slot structure
-          ...(modifiedBatch.time_slots || {}), // User-defined time slot details
-        },
-        coaches: {
-          ...emptyBatch.coaches, // Default coach structure
-          ...(modifiedBatch.coaches || {}), // User-defined coaches
-        },
-      };
+  //     if (modifiedBatch.start_date instanceof Date) {
+  //       modifiedBatch.start_date = modifiedBatch.start_date
+  //         .toISOString()
+  //         .split("T")[0];
+  //     }
+  //    console.log(modifiedBatch)
+  //     // Merge filled batch data with emptyBatch (ensuring all fields exist)
+  //     let finalBatch = {
+  //       ...emptyBatch, // Default values
+  //       ...modifiedBatch, // User input values
+  //       time_slots: {
+  //         ...emptyBatch.time_slots, // Default time slot structure
+  //         ...(modifiedBatch.time_slots || {}), // User-defined time slot details
+  //       },
+  //       coaches: {
+  //         ...emptyBatch.coaches, // Default coach structure
+  //         ...(modifiedBatch.coaches || {}), // User-defined coaches
+  //       },
+  //     };
 
-      console.log(finalBatch);
+  //     console.log(finalBatch);
 
-      axios
-        .post(`${process.env.REACT_APP_API_URL}/batch-api/add-Pbatch`, finalBatch, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            toast.success(response.data.message, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-              transition: Bounce,
-            });
+  //     axios
+  //       .post(`${process.env.REACT_APP_API_URL}/batch-api/add-batch`, finalBatch, {
+  //         headers: { Authorization: "Bearer " + token },
+  //       })
+  //       .then((response) => {
+  //         if (response.status === 200) {
+  //           toast.success(response.data.message, {
+  //             position: "top-right",
+  //             autoClose: 5000,
+  //             hideProgressBar: false,
+  //             closeOnClick: false,
+  //             pauseOnHover: true,
+  //             draggable: true,
+  //             progress: undefined,
+  //             theme: "light",
+  //             transition: Bounce,
+  //           });
 
-            getBatches(); // Refresh batch list
-          }
-        })
-        .catch((err) => {
-          setError(err.message);
-          toast.error(err.response.data.message, {
-                        position: "top-right",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: false,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "colored",
-                        transition: Bounce,
-                      });
+  //           getBatches(); // Refresh batch list
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         setError(err.message);
+  //         toast.error(err.response.data.message, {
+  //                       position: "top-right",
+  //                       autoClose: 5000,
+  //                       hideProgressBar: false,
+  //                       closeOnClick: false,
+  //                       pauseOnHover: true,
+  //                       draggable: true,
+  //                       progress: undefined,
+  //                       theme: "colored",
+  //                       transition: Bounce,
+  //                     });
 
-          console.log(err.response || err.request || err.message);
-        });
+  //         console.log(err.response || err.request || err.message);
+  //       });
 
-      hideDialog();
-    }
-  };
+  //     hideDialog();
+  //   }
+  // };
 
   const deleteBatch = () => {
     axios
@@ -586,7 +658,7 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
         className="icon-button2 horse2 border-success "
         style={{ padding: "1.3rem" }}
         type="submit"
-        onClick={handleSubmit(isEditing ? saveModifiedUser : addNewBatch)}
+        onClick={handleSubmit( saveModifiedUser )}
       >
         <IoIosSave className="icon-horse2" /> <span></span>
       </button>
@@ -617,7 +689,7 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
   const renderHeader = () => {
     return (
       <div className="flex flex-wrap gap-3 justify-content-between align-items-center">
-        <h4 className="m-0">Practice session</h4>
+        <h4 className="m-0">Theory & Practice session</h4>
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
           <InputText
@@ -744,19 +816,21 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
   
     setNextSession(Session);
   };
-  
+  const confirmDeleteSelected = () => {
+    setDeleteProductsDialog(true);
+};
 
   const leftToolbarTemplate = () => {
     return (
       <div className="flex flex-wrap gap-2">
         <button
-          className="icon-button horse border-success "
-          style={{ padding: "1.3rem" }}
-          type="submit"
-          onClick={openNew}
-        >
-          <MdAlarmAdd className="icon-horse" /> <span></span>
-        </button>
+                    className="icon-button1 horse1 border-danger dss"
+                    style={{ padding: "1.3rem" }}
+                    onClick={confirmDeleteSelected}
+                    disabled={!selectedCustomers || !selectedCustomers.length}
+                  >
+                    <MdDelete className="icon-horse1" /> <span></span>
+                  </button>
       </div>
     );
   };
@@ -776,7 +850,7 @@ const subCoachOptions = coachOptions.filter((coach) => coach.value !== selectedM
     );
   };
   const [statuses] = useState(["Active", "Inactive"]);
-  const statusOptions = ["Active", "Inactive"];
+
   const representativeBodyTemplate = (rowData) => {
     const status = rowData.status;
 
@@ -834,6 +908,30 @@ const panelFooterTemplate = () => {
         </div>
     );
 };
+ const deleteProductsDialogFooter = (
+    <React.Fragment>
+      <button
+        className="icon-button horse "
+        style={{ padding: "1.3rem" }}
+        onClick={hideDeleteProductsDialog}
+      >
+        <GiCancel className="icon-horse" /> <span></span>
+      </button>
+
+      <button
+        className="icon-button1 horse1 border-danger"
+        style={{ padding: "1.3rem" }}
+        onClick={() => {
+          if (window.confirm("Are you sure you want to delete this student?")) {
+            deleteBatches();
+            hideDeleteProductsDialog();
+          }
+        }}
+      >
+        <RiDeleteBinFill className="icon-horse1" /> <span></span>
+      </button>
+    </React.Fragment>
+  );
 
   const header = renderHeader();
 
@@ -844,23 +942,38 @@ const panelFooterTemplate = () => {
         href="https://site-assets.fontawesome.com/releases/v6.4.0/css/all.css"
       ></link>
       <div className=" text-center mx-5">
-        <div
-          className="card s-col  d-block m-auto  my-5"
-          style={{ maxWidth: "18rem" }}
-        >
-          <div className="card-body row   ">
-            <div className="col-1 d-blcok m-auto">
-              <RiCalendarScheduleFill className="icon-stu fs-3" />
+        <div className="row mt-5">
+            {/* Total Students */}
+            <div className="col-lg-6 my-3">
+              <div className="card s-col d-blcok m-auto" style={{width:"18rem"}}>
+                <div className="card-body d-flex gap-4">
+                <RiCalendarScheduleFill className="icon-stu fs-3" />
+                  <div>
+                    <h5 className="stu-context">Total Batches :</h5>
+                    <h5 className="stu-context">{batches?.length}</h5>
+                  </div>
+                  <div className="ag-courses-item_bg"></div>
+                </div>
+              </div>
             </div>
-
-            <div className="col-11 stu-context">
-              <h5 className="text-xl fw-bold">Total Batches :</h5>
-              <h5 className="text-lg fw-normal ">{batches?.length}</h5>
+        
+            {/* Active Students */}
+            <div className="col-lg-6 my-3">
+              <div className="card s-col d-blcok m-auto " style={{width:"18rem"}}>
+                <div className="card-body d-flex gap-4">
+                  <FaPersonBiking className="icon-stu fs-3" />
+                  <div>
+                    <h5 className="stu-context ">Active Batches :</h5>
+                    <h5 className="stu-context">
+                      {batches?.filter((stu) => stu?.status === "Active")?.length}
+                    </h5>
+                  </div>
+                  <div className="ag-courses-item_bg"></div>
+                </div>
+              </div>
             </div>
-
-            <div class="ag-courses-item_bg"></div>
           </div>
-        </div>
+       
 
         <div
           className="card   d-block  m-auto  next-session  "
@@ -905,7 +1018,7 @@ const panelFooterTemplate = () => {
             rows={10}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             rowsPerPageOptions={[5, 10, 20]}
-            dataKey="id"
+            dataKey="_id"
             selectionMode="checkbox"
             selection={selectedCustomers}
             onSelectionChange={(e) => setSelectedCustomers(e.value)}
@@ -1002,237 +1115,237 @@ const panelFooterTemplate = () => {
           </DataTable>
         </div>
       </div>
+   
       <Dialog
-        visible={batchDialog}
-        style={{ width: "32rem" }}
-        breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-        header="Batch Details"
-        modal
-        className="p-fluid"
-        footer={batchDialogFooter}
-        onHide={hideDialog}
-      >
-        <form className="mt-5">
-          <div className="container ecat">
-            <div className="inputbox4 form-floating">
-              <i className="fa-regular fa-user"></i>
+       visible={batchDialog}
+       style={{ width: "32rem" }}
+       breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+       header="Batch Details"
+       modal
+       className="p-fluid"
+       footer={batchDialogFooter}
+       onHide={hideDialog}
+     >
+       <form className="mt-5">
+         <div className="container ecat">
+           <div className="inputbox4 form-floating">
+             <i className="fa-regular fa-user"></i>
 
-              <input
-                type="text"
-                id="batch_id"
-                className="form-control "
-                placeholder="xyz"
-                {...register("batch_id", {
-                  required: true,
-                })}
-              ></input>
-              <label htmlFor="batch_id" className="text-dark">
-                batch ID{" "}
-              </label>
+             <input
+               type="text"
+               id="batch_id"
+               className="form-control "
+               placeholder="xyz"
+               {...register("batch_id", {
+                 required: true,
+               })}
+             ></input>
+             <label htmlFor="batch_id" className="text-dark">
+               batch ID{" "}
+             </label>
 
-              {errors.batch_id?.type === "required" && (
-                <p className=" text-danger">*enter Student full name</p>
-              )}
-            </div>
+             {errors.batch_id?.type === "required" && (
+               <p className=" text-danger">*enter Student full name</p>
+             )}
+           </div>
 
-            <div className="joining-date mb-5">
-              <label htmlFor="start_date" className="text-dark mb-3">
-                Starting Date
-              </label>
-              <Controller
-                name="start_date"
-                control={control}
-                rules={{
-                  required: "Starting date is required",
-                }}
-                render={({ field }) => (
-                  <Calendar
-                    {...field}
-                    inputRef={field.ref}
-                    value={field.value}
-                    onChange={(e) => field.onChange(e.value)}
-                    dateFormat="dd-mm-yy"
-                    showIcon
-                    placeholder="Select Date"
-                  />
-                )}
-              />
-              <i className="fa-solid fa-calendar-days"></i>
-              {errors?.start_date && (
-                <span className="text-sm text-danger">
-                  {errors.start_date.message}
-                </span>
-              )}
-            </div>
+           <div className="joining-date mb-5">
+             <label htmlFor="start_date" className="text-dark mb-3">
+               Starting Date
+             </label>
+             <Controller
+               name="start_date"
+               control={control}
+               rules={{
+                 required: "Starting date is required",
+               }}
+               render={({ field }) => (
+                 <Calendar
+                   {...field}
+                   inputRef={field.ref}
+                   value={field.value}
+                   onChange={(e) => field.onChange(e.value)}
+                   dateFormat="dd-mm-yy"
+                   showIcon
+                   placeholder="Select Date"
+                 />
+               )}
+             />
+             <i className="fa-solid fa-calendar-days"></i>
+             {errors?.start_date && (
+               <span className="text-sm text-danger">
+                 {errors.start_date.message}
+               </span>
+             )}
+           </div>
 
-            <div className="field mb-5">
-      <label className="mb-2">Select Session Days</label>
-      <Controller
-        name="session_days"
-        control={control}
-        rules={{ required: "Please select at least one session day" }}
-        render={({ field }) => (
-          <MultiSelect
-          {...field}
-          value={field.value || []} // Ensure it's always an array
-          options={allDays} // Directly use string array
-          onChange={(e) => field.onChange(e.value)}
-          placeholder="Select Days"
-          itemTemplate={countryTemplate} 
-          
-          className={`w-15rem ${errors.session_days ? "p-invalid" : ""}`}
-          display="chip" // Shows selected items as chips
-        />        )}
-      /><IoToday className="i" />
-      {errors.session_days && <small className="p-error">{errors.session_days.message}</small>}
-    </div>
+           <div className="field mb-5">
+     <label className="mb-2">Select Session Days</label>
+     <Controller
+       name="session_days"
+       control={control}
+       rules={{ required: "Please select at least one session day" }}
+       render={({ field }) => (
+         <MultiSelect
+         {...field}
+         value={field.value || []} // Ensure it's always an array
+         options={allDays} // Directly use string array
+         onChange={(e) => field.onChange(e.value)}
+         placeholder="Select Days"
+         itemTemplate={countryTemplate} 
+         
+         className={`w-15rem ${errors.session_days ? "p-invalid" : ""}`}
+         display="chip" // Shows selected items as chips
+       />        )}
+     /><IoToday className="i" />
+     {errors.session_days && <small className="p-error">{errors.session_days.message}</small>}
+   </div>
 {/* time thanks */}
 {fields.map((item, index) => (
-  <div key={item.id} className="d-flex gap-2 align-items-start mb-3 w-100" >
-    <div className="inputbox4 form-floating flex-fill">
-      
-      <input
-        type="time"
-        className="form-control"
-        placeholder="from"
-        {...register(`time_slots.slots.${index}.from`, { required: true })}
-      />
-      <label className="text-dark">from</label>
-      {errors?.time_slots?.slots?.[index]?.from && (
-        <p className="text-danger">*enter from time</p>
-      )}
-    </div>
+ <div key={item.id} className="d-flex gap-2 align-items-start mb-3 w-100">
+   <div className="inputbox4 form-floating flex-fill">
+    
+     <input
+       type="time"
+       className="form-control"
+       placeholder="from"
+       {...register(`time_slots.slots.${index}.from`, { required: true })}
+     />
+     <label className="text-dark">from</label>
+     {errors?.time_slots?.slots?.[index]?.from && (
+       <p className="text-danger">*enter from time</p>
+     )}
+   </div>
 
-    <div className="inputbox4 form-floating flex-fill">
-      
-      <input
-        type="time"
-        className="form-control"
-        placeholder="to"
-        {...register(`time_slots.slots.${index}.to`, { required: true })}
-      />
-      <label className="text-dark">to</label>
-      {errors?.time_slots?.slots?.[index]?.to && (
-        <p className="text-danger">*enter to time</p>
-      )}
-    </div>
+   <div className="inputbox4 form-floating flex-fill">
+    
+     <input
+       type="time"
+       className="form-control"
+       placeholder="to"
+       {...register(`time_slots.slots.${index}.to`, { required: true })}
+     />
+     <label className="text-dark">to</label>
+     {errors?.time_slots?.slots?.[index]?.to && (
+       <p className="text-danger">*enter to time</p>
+     )}
+   </div>
 
-    {/* Remove Button */}
-    <button
-      type="button"
-      className="btn btn-danger mt-2"
-      onClick={() => remove(index)}
-    >
-      Remove
-    </button>
-  </div>
+   {/* Remove Button */}
+   <button
+     type="button"
+     className="btn btn-danger mt-2"
+     onClick={() => remove(index)}
+   >
+     Remove
+   </button>
+ </div>
 ))}
 
 {/* Add Slot Button */}
 <div className="mb-3">
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={() => append({ from: "", to: "" })}
-  >
-    Add Time Slot
-  </button>
+ <button
+   type="button"
+   className="btn btn-primary"
+   onClick={() => append({ from: "", to: "" })}
+ >
+   Add Time Slot
+ </button>
 </div>
 
-            <div className="inputbox4 form-floating">
-            <i className="fa-solid fa-earth-americas"></i>
+           <div className="inputbox4 form-floating">
+           <i className="fa-solid fa-earth-americas"></i>
 
-              <input
-                type="text"
-                id="time_slots.time_zone"
-                className="form-control "
-                placeholder="xyz"
-                {...register("time_slots.time_zone", {
-                  required: true,
-                })}
-              ></input>
-              <label htmlFor="time_slots.time_zone" className="text-dark">
-                time zone{" "}
-              </label>
+             <input
+               type="text"
+               id="time_slots.time_zone"
+               className="form-control "
+               placeholder="xyz"
+               {...register("time_slots.time_zone", {
+                 required: true,
+               })}
+             ></input>
+             <label htmlFor="time_slots.time_zone" className="text-dark">
+               time zone{" "}
+             </label>
 
-              {errors.time_slots?.time_zone?.type === "required" && (
-                <p className=" text-danger">*enter time_zone</p>
-              )}
-            </div>
+             {errors.time_slots?.time_zone?.type === "required" && (
+               <p className=" text-danger">*enter time_zone</p>
+             )}
+           </div>
 
-            {/* status */}
-            <div className="field mb-5">
-            <i className="fa-solid fa-battery-full"></i>
-  <label htmlFor="status" className="mb-2">Status</label>
-  <select
-    id="status"
-    {...register("status", { required: "Please select a status" })}
-    defaultValue={batch?.status} // Set from the existing value like "Active" or "Inactive"
-    className={`w-75  form-select ${errors.status ? "p-invalid" : ""}`}
-  >
-   
-    <option value="Active">Active</option>
-    <option value="Inactive">Inactive</option>
-  </select>
-  {errors.status && <small className="p-error">{errors.status.message}</small>}
+           {/* status */}
+           <div className="field mb-5">
+           <i className="fa-solid fa-battery-full"></i>
+ <label htmlFor="status" className="mb-2">Status</label>
+ <select
+   id="status"
+   {...register("status", { required: "Please select a status" })}
+   defaultValue={batch?.status} // Set from the existing value like "Active" or "Inactive"
+   className={`w-75  form-select ${errors.status ? "p-invalid" : ""}`}
+ >
+  
+   <option value="Active">Active</option>
+   <option value="Inactive">Inactive</option>
+ </select>
+ {errors.status && <small className="p-error">{errors.status.message}</small>}
 </div>
 
 
- {/* Main Coach Dropdown */}
- <div className="field mb-5">
-        <label className="mb-2">Main Coach</label>
-        <Controller
-          name="coaches.main"
-          control={control}
-          rules={{ required: "Please select a main coach" }}
-          render={({ field }) => (
-            <Dropdown
-              {...field}
-              value={field.value|| null}
-              onChange={(e) => {
-                field.onChange(e.value);
-                setValue(
-                  "coaches.sub_coaches",
-                  selectedSubCoaches.filter((sc) => sc !== e.value)
-                ); // Remove new main from subs
-              }}
-              options={coachOptions}
-              placeholder="Select Main Coach"
-              className={`w-15rem ${errors.coaches?.main ? "p-invalid" : ""}`}
-            />
-          )}
-        /><FaChalkboardTeacher className="i"/>
-        {errors.coaches?.main && (
-          <small className="p-error">{errors.coaches.main.message}</small>
-        )}
-      </div>
+{/* Main Coach Dropdown */}
+<div className="field mb-5">
+       <label className="mb-2">Main Coach</label>
+       <Controller
+         name="coaches.main"
+         control={control}
+         rules={{ required: "Please select a main coach" }}
+         render={({ field }) => (
+           <Dropdown
+             {...field}
+             value={field.value|| null}
+             onChange={(e) => {
+               field.onChange(e.value);
+               setValue(
+                 "coaches.sub_coaches",
+                 selectedSubCoaches.filter((sc) => sc !== e.value)
+               ); // Remove new main from subs
+             }}
+             options={coachOptions}
+             placeholder="Select Main Coach"
+             className={`w-15rem ${errors.coaches?.main ? "p-invalid" : ""}`}
+           />
+         )}
+       /><FaChalkboardTeacher className="i"/>
+       {errors.coaches?.main && (
+         <small className="p-error">{errors.coaches.main.message}</small>
+       )}
+     </div>
 
-      {/* Sub Coaches MultiSelect */}
-      <div className="field mb-5">
-        <label className="mb-2">Sub Coaches</label>
-        <Controller
-          name="coaches.sub_coaches"
-          control={control}
-          render={({ field }) => (
-            <MultiSelect
-              {...field}
-              value={field.value || []}
-              onChange={(e) => field.onChange(e.value)}
-              options={subCoachOptions}
-              placeholder="Select Sub Coaches"
-              className={`w-15rem ${errors.coaches?.sub_coaches ? "p-invalid" : ""}`}
-              display="chip"
-            />
-          )}
-        />
-        <HiUserGroup className="i" />
-      </div>
+     {/* Sub Coaches MultiSelect */}
+     <div className="field mb-5">
+       <label className="mb-2">Sub Coaches</label>
+       <Controller
+         name="coaches.sub_coaches"
+         control={control}
+         render={({ field }) => (
+           <MultiSelect
+             {...field}
+             value={field.value || []}
+             onChange={(e) => field.onChange(e.value)}
+             options={subCoachOptions}
+             placeholder="Select Sub Coaches"
+             className={`w-15rem ${errors.coaches?.sub_coaches ? "p-invalid" : ""}`}
+             display="chip"
+           />
+         )}
+       />
+       <HiUserGroup className="i" />
+     </div>
 
 
-          </div>
-        </form>
-      </Dialog>
-
+         </div>
+       </form>
+     </Dialog>
       {/* delete */}
       <Dialog
       visible={deleteBatchDialog}
@@ -1255,6 +1368,12 @@ const panelFooterTemplate = () => {
         )}
       </div>
     </Dialog>
+       <Dialog visible={deleteProductsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
+                    <div className="confirmation-content">
+                        <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                        {batch && <span>Are you sure you want to delete the selected Students?</span>}
+                    </div>
+                </Dialog>
     </div>
   );
 };

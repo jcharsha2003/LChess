@@ -54,7 +54,7 @@
 
 /* collapsed Naming  */
 
-.s-bat,.s-das,.s-stu{
+.s-bat,.s-das,.s-stu,.dss{
   position: relative;
 }
 .s-das::before {
@@ -71,7 +71,7 @@
   white-space: nowrap;
   opacity: 0; /* Initially hidden */
   transition: opacity 0.3s ease-in-out;
-  z-index: 1000; /* Ensures visibility above other elements */
+  z-index: 100; /* Ensures visibility above other elements */
 }
 
 .s-bat::before {
@@ -88,7 +88,7 @@
   white-space: nowrap;
   opacity: 0; /* Initially hidden */
   transition: opacity 0.3s ease-in-out;
-  z-index: 1000; /* Ensures visibility above other elements */
+  z-index: 100; /* Ensures visibility above other elements */
 }
 
 .s-stu::before {
@@ -105,8 +105,26 @@
   white-space: nowrap;
   opacity: 0; /* Initially hidden */
   transition: opacity 0.3s ease-in-out;
-  z-index: 1000; /* Ensures visibility above other elements */
+  z-index: 100; /* Ensures visibility above other elements */
 }
-.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before{
+
+.dss::before {
+  content: "Click the Check box to delete";  /* The title text */
+  position: absolute;
+  top: 2%; /* Moves the text above the button */
+  left: 280%;
+  transform: translateX(-50%);
+  /* Dark background for visibility */
+  color: black;
+ font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease-in-out;
+  z-index: 100; /* Ensures visibility above other elements */
+}
+.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before,.dss:hover::before{
   opacity: 1; /* Show on hover */
 }
+

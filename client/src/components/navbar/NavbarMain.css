@@ -75,7 +75,7 @@
 	     -o-transition: all 0.3s;
 	        transition: all 0.3s;
 	width: 3.6rem;
-	z-index: 10;
+	z-index: 1;
 }
 
 .icon-button .icon-horse {
@@ -151,7 +151,7 @@
 	     -o-transition: all 0.3s;
 	        transition: all 0.3s;
 	width: 3.6rem;
-	z-index: 10;
+	z-index: 1;
 }
 
 .icon-button1 .icon-horse1 {
@@ -228,7 +228,7 @@
 	     -o-transition: all 0.3s;
 	        transition: all 0.3s;
 	width: 3.6rem;
-	z-index: 10;
+	z-index: 1;
 }
 
 .icon-button2 .icon-horse2 {
