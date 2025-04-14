@@ -130,7 +130,7 @@ const MyProSidebar = () => {
                   )}
                 </Link>
               </li>
-              <li className={`nav-item ${collapsed ? "collapsed" : ""} my-2`}>
+              {/* <li className={`nav-item ${collapsed ? "collapsed" : ""} my-2`}>
                 {collapsed ? (
                   <Studentd sidebarRTL={sidebarRTL} />
                 ) : (
@@ -149,8 +149,8 @@ const MyProSidebar = () => {
                     </div>
                   </button>
                 )}
-              </li>
-              <div className="collapse" id="collapseExample">
+              </li> */}
+              {/* <div className="collapse" id="collapseExample">
                 <li className={`nav-item ${collapsed ? "d-none" : ""} my-2`}>
                   <Link
                     className={`nav-link s-link d-flex gap-2 ${
@@ -185,7 +185,31 @@ const MyProSidebar = () => {
                     </>
                   </Link>
                 </li>
-              </div>
+              </div> */}
+               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
+                <Link
+                  className={`nav-link s-link d-flex gap-2 ${
+                    collapsed ? "icon-button horse s-bat mb-2" : ""
+                  }`}
+                  to="/practice"
+                >
+                  {collapsed ? (
+                    <div>
+                      <FaChess className="s-icon-1 fs-3 icon-horse" />
+                      <span></span>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <FaChess className="s-icon fs-3" />
+                      </div>
+                      <div>
+                        <p className="s-p">Batches</p>
+                      </div>
+                    </>
+                  )}
+                </Link>
+              </li>
               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
                 <Link
                   className={`nav-link s-link d-flex gap-2 ${
@@ -214,7 +238,7 @@ const MyProSidebar = () => {
               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
                 <Link
                   className={`nav-link s-link d-flex gap-2 ${
-                    collapsed ? "icon-button horse s-stu mb-2" : ""
+                    collapsed ? "icon-button horse s-coac mb-2" : ""
                   }`}
                   to="/coach"
                 >

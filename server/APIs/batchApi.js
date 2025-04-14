@@ -6,8 +6,6 @@ const expressAsyncHandler = require("express-async-handler");
 
 const { ObjectId } = require("mongodb");
 
-
-
 batchapp.get(
   "/get-batches",
   verifytoken,
@@ -19,7 +17,7 @@ batchapp.get(
     //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
-  
+
     //verify username
     let userOfDB = await userCollection.findOne({
       _id: new ObjectId(userId),
@@ -30,7 +28,6 @@ batchapp.get(
     //if username is valid
     else {
       if (userOfDB?.role === "admin") {
-       
         response.status(200).send({ message: "users list", payload: batches });
       } else {
         response.status(200).send({ message: "UnAuthorized user" });
@@ -38,10 +35,6 @@ batchapp.get(
     }
   })
 );
-
-
-
-
 
 batchapp.put(
   "/update-batch",
@@ -51,7 +44,7 @@ batchapp.put(
 
     let modifiedStudent = request.body;
     //get user credentials from req
-   
+
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
 
@@ -77,9 +70,13 @@ batchapp.put(
         );
 
         if (result.modifiedCount > 0) {
-          response.status(200).send({ message: "batch has been modified successfully" });
+          response
+            .status(200)
+            .send({ message: "batch has been modified successfully" });
         } else {
-          response.status(400).send({ message: "No changes made or batch not found" });
+          response
+            .status(400)
+            .send({ message: "No changes made or batch not found" });
         }
       } else {
         response.status(200).send({ message: "UnAuthorized user" });
@@ -92,10 +89,9 @@ batchapp.delete(
   verifytoken,
   expressAsyncHandler(async (request, response) => {
     // get userCollection
-    
+
     const batchCollection = request.app.get("batchCollection");
 
- 
     //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
@@ -110,18 +106,22 @@ batchapp.delete(
     //if username is valid
     else {
       if (userOfDB?.role === "admin") {
-        if (!request.params._id ) {
+        if (!request.params._id) {
           return response.status(400).send({ message: "batch ID is required" });
         }
 
-        const studentId = new ObjectId(request.params._id );
-        
+        const studentId = new ObjectId(request.params._id);
+
         const result = await batchCollection.deleteOne({ _id: studentId });
 
         if (result.deletedCount > 0) {
-          response.status(200).send({ message: "batch has been deleted successfully" });
+          response
+            .status(200)
+            .send({ message: "batch has been deleted successfully" });
         } else {
-          response.status(400).send({ message: "batch not found or already deleted" });
+          response
+            .status(400)
+            .send({ message: "batch not found or already deleted" });
         }
       } else {
         response.status(200).send({ message: "UnAuthorized user" });
@@ -136,14 +136,11 @@ batchapp.post(
   "/add-batch",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
-    
-
     //    get user from req
     const newuser = request.body;
-   
+
     const batchCollection = request.app.get("batchCollection");
 
- 
     //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
@@ -152,52 +149,40 @@ batchapp.post(
     let userOfDB = await userCollection.findOne({
       _id: new ObjectId(userId),
     }); //if username is invalid
-    
+
     if (userOfDB === null) {
       response.status(200).send({ message: "Invalid User" });
     }
     //if username is valid
-   
     else {
-     
       if (userOfDB?.role === "admin") {
-      
-
-        
-        const existingStudent = await batchCollection.findOne({ 
-          
-          batch_id: newuser.batch_id 
+        const existingBatch = await batchCollection.findOne({
+          batch_id: newuser.batch_id,
         });
 
-if (existingStudent) {
-  const existingDays = existingStudent.session_days || [];
-  const newDays = newuser.session_days || [];
+        if (!existingBatch) {
+          // Batch does not exist, so insert it
+          const insertResult = await batchCollection.insertOne(newuser);
 
-  // Check for any overlapping days
-  const hasOverlap = newDays.some(day => existingDays.includes(day));
-
-  if (hasOverlap) {
-    return response.status(400).json({ message: "Overlapping session days detected." });
-  }
-  
-
-  const insertResult = await batchCollection.insertOne(newuser);
-
-  if (insertResult.insertedId) {
-    response.status(200).send({ message: "Batch has been added successfully" });
-  } else {
-    response.status(400).send({ message: "Failed to add student" });
-  }
-}
-
+          if (insertResult.insertedId) {
+            response
+              .status(200)
+              .send({ message: "Batch has been added successfully" });
+          } else {
+            response.status(400).send({ message: "Failed to add batch" });
+          }
+        } else {
+          // Batch already exists
+          response
+            .status(409)
+            .send({ message: "Batch with this ID already exists" });
+        }
       } else {
         response.status(200).send({ message: "UnAuthorized user" });
       }
     }
   })
 );
-
-
 
 // delete selected students
 batchapp.post(
@@ -209,7 +194,9 @@ batchapp.post(
     const userId = request.user.id;
 
     // Verify user
-    const userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
+    const userOfDB = await userCollection.findOne({
+      _id: new ObjectId(userId),
+    });
 
     if (!userOfDB) {
       return response.status(200).send({ message: "Invalid User" });
@@ -222,48 +209,53 @@ batchapp.post(
     const { students } = request.body;
 
     if (!students || !Array.isArray(students) || students.length === 0) {
-      return response.status(400).send({ message: "No Batches selected for deletion" });
+      return response
+        .status(400)
+        .send({ message: "No Batches selected for deletion" });
     }
 
     const idsToDelete = students.map((s) => new ObjectId(s._id));
-    
-    const result = await batchCollection.deleteMany({ _id: { $in: idsToDelete } });
+
+    const result = await batchCollection.deleteMany({
+      _id: { $in: idsToDelete },
+    });
 
     if (result.deletedCount > 0) {
-      response.status(200).send({ message: `${result.deletedCount} batche(s) deleted successfully` });
+      response
+        .status(200)
+        .send({
+          message: `${result.deletedCount} batche(s) deleted successfully`,
+        });
     } else {
-      response.status(400).send({ message: "No matching batches found to delete" });
+      response
+        .status(400)
+        .send({ message: "No matching batches found to delete" });
     }
   })
 );
 
-// Test api 
+// Test api
 
-// batchapp.delete(
-//   "/delete-batches",
-  
-//   expressAsyncHandler(async (request, response) => {
-//     // get userCollection
-    
-//     const batchCollection = request.app.get("batchCollection");
+batchapp.delete(
+  "/delete-batches",
 
- 
-   
-   
+  expressAsyncHandler(async (request, response) => {
+    // get userCollection
 
-    
-        
-//         const result = await batchCollection.deleteMany({});
+    const batchCollection = request.app.get("batchCollection");
 
-//         if (result.deletedCount > 0) {
-//           response.status(200).send({ message: "batch has been deleted successfully" });
-//         } else {
-//           response.status(400).send({ message: "batch not found or already deleted" });
-//         }
-      
-      
-    
-//   })
-// );
+    const result = await batchCollection.deleteMany({});
+
+    if (result.deletedCount > 0) {
+      response
+        .status(200)
+        .send({ message: "batch has been deleted successfully" });
+    } else {
+      response
+        .status(400)
+        .send({ message: "batch not found or already deleted" });
+    }
+  })
+);
 
 module.exports = batchapp;

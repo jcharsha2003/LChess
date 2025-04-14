@@ -163,6 +163,169 @@ const Student = () => {
     setDeleteStudentDialog(true);
   };
 
+
+ 
+  // get Batches
+  let [batches, setBatches] = useState([]);
+  const getBatches = () => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/batch-api/get-batches`, {
+        headers: { Authorization: "Bearer " + token },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          let originalData = JSON.parse(JSON.stringify(response.data.payload));
+     // Separate copy for modifications
+
+          // Store original data in batches (unchanged)
+          setBatches(originalData);
+          console.log(originalData)
+          // Store modified data if needed (e.g., filtered or formatted data)
+          
+        }
+
+        if (response.status !== 200) {
+          setError(response.data.message);
+
+          toast.error(response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      })
+      .catch((err) => {
+        if (err.response) {
+          setError(err.message);
+          toast.error(err.response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+          console.log(err.response);
+        } else if (err.request) {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        } else {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      });
+  };
+  // get Coaches
+    let [Coaches, setCoaches] = useState([]);
+  const getCoaches = () => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/coach-api/get-coaches`, {
+        headers: { Authorization: "Bearer " + token },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          let originalData = JSON.parse(JSON.stringify(response.data.payload));
+           // Separate copy for modifications
+
+          
+
+          // Store original data in Coaches (unchanged)
+          setCoaches(originalData);
+          
+          // Store modified data in customers
+          
+          
+        }
+        if (response.status !== 200) {
+          setError(response.data.message);
+
+          toast.error(response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      })
+      .catch((err) => {
+        if (err.response) {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+          console.log(err.response);
+        } else if (err.request) {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        } else {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      });
+  };
+
   const saveModifiedUser = () => {
     if (Object.keys(errors).length === 0) {
       let modifiedUser = getValues();
@@ -580,10 +743,17 @@ if (existing) {
         }
       });
   };
-  useEffect(() => {
-    getStudents();
-  }, []);
+  
+ useEffect(() => {
+    const fetchData = async () => {
+      await getStudents();
+      await getCoaches();
+      await getBatches();
+      
+    };
 
+    fetchData();
+  }, []);
   // Table part code
 
   const hideDialog = () => {
@@ -840,7 +1010,37 @@ if (existing) {
         href="https://site-assets.fontawesome.com/releases/v6.4.0/css/all.css"
       ></link>
       <div className="text-center mx-5">
-  c
+      <div className="row mt-5">
+    {/* Total Students */}
+    <div className="col-lg-6 my-3">
+    <div className="card s-col d-blcok m-auto" style={{width:"18rem"}}>
+        <div className="card-body d-flex gap-3">
+          <FaUsers className="icon-stu fs-3" />
+          <div>
+            <h5 className="stu-context">Total Students :</h5>
+            <h5 className="stu-context">{students?.length}</h5>
+          </div>
+          <div className="ag-courses-item_bg"></div>
+        </div>
+      </div>
+    </div>
+
+    {/* Active Students */}
+    <div className="col-lg-6 my-3">
+    <div className="card s-col d-blcok m-auto" style={{width:"18rem"}}>
+        <div className="card-body d-flex gap-3">
+          <FaUsers className="icon-stu fs-3" />
+          <div>
+            <h5 className="stu-context">Active Students :</h5>
+            <h5 className="stu-context">
+              {students?.filter((stu) => stu?.status === "Active")?.length}
+            </h5>
+          </div>
+          <div className="ag-courses-item_bg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -1113,26 +1313,28 @@ if (existing) {
                 <p className=" text-danger">*enter Age</p>
               )}
             </div>
-            <div className="inputbox4 form-floating">
-              <i className="fa-solid fa-timeline"></i>
+            <div className="field mb-5">
+  <i className="fa-solid fa-layer-group"></i>
+  <label htmlFor="Batch" className="mb-2">Batch</label>
+  <div style={{ maxHeight: "150px", overflowY: "auto" }}>
+  <select
+    id="Batch"
+    {...register("Batch", { required: "Please select a batch" })}
+    defaultValue=""
+    className={`w-75 form-select ${errors.Batch ? "p-invalid" : ""}`}
+  >
+    <option value="" disabled>Select Batch</option>
+    {batches.map((b, i) => (
+      <option key={i} value={b.batch_id}>{b.batch_id}</option>
+    ))}
+  </select>
+  </div>
+  
+  {errors.Batch && (
+    <small className="p-error">{errors.Batch.message}</small>
+  )}
+</div>
 
-              <input
-                type="text"
-                id="Batch"
-                className="form-control "
-                placeholder="xyz"
-                {...register("Batch", {
-                  required: true,
-                })}
-              ></input>
-              <label htmlFor="Batch" className="text-dark">
-                Batch
-              </label>
-
-              {errors.Batch?.type === "required" && (
-                <p className=" text-danger">*enter Parent name</p>
-              )}
-            </div>
             {/* Gender Radio */}
             <div className="field mb-5">
               <i className="fa-solid fa-venus-mars"></i>
@@ -1248,23 +1450,28 @@ if (existing) {
                 <p className=" text-danger">*enter Address</p>
               )}
             </div>
-            <div className="inputbox4 form-floating">
-              <i className="fa-solid fa-person-chalkboard"></i>
-              <input
-                type="text"
-                id="Coach"
-                className="form-control "
-                placeholder="xyz"
-                {...register("Coach", { required: true })}
-              ></input>
-              <label htmlFor="Coach" className="text-dark">
-                Coach
-              </label>
+            <div className="field mb-5">
+  <i className="fa-solid fa-person-chalkboard"></i>
+  <label htmlFor="Coach" className="mb-2">Coach</label>
+  <div style={{ maxHeight: "150px", overflowY: "auto" }}>
+  <select
+    id="Coach"
+    {...register("Coach", { required: "Please select a coach" })}
+    defaultValue=""
+    className={`w-75 form-select ${errors.Coach ? "p-invalid" : ""}`}
+  >
+    <option value="" disabled>Select Coach</option>
+    {Coaches.map((c, i) => (
+      <option key={i} value={c.Full_Name}>{c.Full_Name}</option>
+    ))}
+  </select>
+  </div>
+  
+  {errors.Coach && (
+    <small className="p-error">{errors.Coach.message}</small>
+  )}
+</div>
 
-              {errors.Coach?.type === "required" && (
-                <p className=" text-danger">*enter Coach</p>
-              )}
-            </div>
             <div className="mb-5 me-5 d-block">
               <label className="form-label">WhatsApp Number</label>
               <Controller

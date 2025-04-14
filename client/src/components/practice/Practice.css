@@ -1,0 +1,5 @@
+/* This will ONLY target the overlay whose inline style contains "--class-type-filter" */
+.p-column-filter-overlay[style*="--class-type-filter"] .p-column-filter-buttonbar {
+    display: none !important;
+  }
+  

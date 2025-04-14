@@ -107,7 +107,7 @@ width: 80%;
 /* edit student form */
 .ecat {
   display: grid;
-  place-items: center; /* Centers horizontally & vertically */
+   /* Centers horizontally & vertically */
 }
 
 .ecat .form-floating {
@@ -141,4 +141,13 @@ width: 80%;
   font-size: 1.2em;
   top: 60%;
   margin-left: 15%;
+}
+
+
+select::-webkit-scrollbar {
+  width: 6px;
+}
+select::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
 }

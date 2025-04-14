@@ -54,7 +54,7 @@
 
 /* collapsed Naming  */
 
-.s-bat,.s-das,.s-stu,.dss{
+.s-bat,.s-das,.s-stu,.dss,.s-coac{
   position: relative;
 }
 .s-das::before {
@@ -108,6 +108,23 @@
   z-index: 100; /* Ensures visibility above other elements */
 }
 
+.s-coac::before {
+  content: "Coach";  /* The title text */
+  position: absolute;
+  top: 40px; /* Moves the text above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  /* Dark background for visibility */
+  color: black;
+ 
+  font-size: 12px;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease-in-out;
+  z-index: 100; /* Ensures visibility above other elements */
+}
+
 .dss::before {
   content: "Click the Check box to delete";  /* The title text */
   position: absolute;
@@ -124,7 +141,7 @@
   transition: opacity 0.3s ease-in-out;
   z-index: 100; /* Ensures visibility above other elements */
 }
-.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before,.dss:hover::before{
+.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before,.dss:hover::before,.s-coac:hover::before{
   opacity: 1; /* Show on hover */
 }
 
