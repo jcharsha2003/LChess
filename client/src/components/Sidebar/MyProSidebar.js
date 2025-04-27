@@ -6,9 +6,11 @@ import { Menu, Sidebar, MenuItem } from "react-pro-sidebar";
 import { useProSidebar } from "react-pro-sidebar";
 import "./MyProSidebar.css";
 import { useSidebarContext } from "./sidebarContext";
+import { MdAccountBalance } from "react-icons/md";
 import { GiTeacher } from "react-icons/gi";
 import { GiTabletopPlayers } from "react-icons/gi";
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FaChess } from "react-icons/fa6";
 import { Box, Typography, IconButton } from "@mui/material";
 import { BiSolidChess } from "react-icons/bi";
@@ -34,7 +36,7 @@ const MyProSidebar = () => {
   const { sidebarRTL, setSidebarRTL, sidebarImage } = useSidebarContext();
   const { collapseSidebar, toggleSidebar, collapsed, broken } = useProSidebar();
 
-  console.log(sidebarRTL,broken)
+  console.log(sidebarRTL, broken);
   return (
     <Box
       sx={{
@@ -71,7 +73,9 @@ const MyProSidebar = () => {
                 <SwitchRightOutlinedIcon
                   onClick={() => setSidebarRTL(!sidebarRTL)}
                 />
-              ):(<div></div>)
+              ) : (
+                <div></div>
+              )
             }
             style={{
               margin: "10px 0 20px 0",
@@ -107,11 +111,13 @@ const MyProSidebar = () => {
           >
             <ul className={`navbar-nav s-menu text-decoration-none px-1 `}>
               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-2`}>
-                <Link
-                  className={`nav-link s-link d-flex gap-2 ${
-                    collapsed ? "icon-button horse s-das mb-2" : ""
-                  }`}
+                <NavLink
                   to="/dashboard"
+                  className={({ isActive }) =>
+                    `nav-link s-link d-flex gap-2 ${
+                      collapsed ? "icon-button horse s-das mb-2" : ""
+                    } ${isActive ? "active" : ""}`
+                  }
                 >
                   {collapsed ? (
                     <div>
@@ -128,7 +134,7 @@ const MyProSidebar = () => {
                       </div>
                     </>
                   )}
-                </Link>
+                </NavLink>
               </li>
               {/* <li className={`nav-item ${collapsed ? "collapsed" : ""} my-2`}>
                 {collapsed ? (
@@ -186,12 +192,14 @@ const MyProSidebar = () => {
                   </Link>
                 </li>
               </div> */}
-               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
-                <Link
-                  className={`nav-link s-link d-flex gap-2 ${
-                    collapsed ? "icon-button horse s-bat mb-2" : ""
-                  }`}
+              <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
+                <NavLink
                   to="/practice"
+                  className={({ isActive }) =>
+                    `nav-link s-link d-flex gap-2 ${
+                      collapsed ? "icon-button horse s-bat mb-2" : ""
+                    } ${isActive && !collapsed ? "active" : ""}`
+                  }
                 >
                   {collapsed ? (
                     <div>
@@ -208,14 +216,16 @@ const MyProSidebar = () => {
                       </div>
                     </>
                   )}
-                </Link>
+                </NavLink>
               </li>
               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
-                <Link
-                  className={`nav-link s-link d-flex gap-2 ${
-                    collapsed ? "icon-button horse s-stu mb-2" : ""
-                  }`}
+                <NavLink
                   to="/student"
+                  className={({ isActive }) =>
+                    `nav-link s-link d-flex gap-2 ${
+                      collapsed ? "icon-button horse s-stu mb-2" : ""
+                    } ${isActive && !collapsed ? "active" : ""}`
+                  }
                 >
                   {collapsed ? (
                     <div>
@@ -228,19 +238,21 @@ const MyProSidebar = () => {
                         <SiChessdotcom className="s-icon fs-3" />
                       </div>
                       <div>
-                        <p className="s-p">Student</p>
+                        <p className="s-p">Students</p>
                       </div>
                     </>
                   )}
-                </Link>
+                </NavLink>
               </li>
 
               <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
-                <Link
-                  className={`nav-link s-link d-flex gap-2 ${
-                    collapsed ? "icon-button horse s-coac mb-2" : ""
-                  }`}
+                <NavLink
                   to="/coach"
+                  className={({ isActive }) =>
+                    `nav-link s-link d-flex gap-2 ${
+                      collapsed ? "icon-button horse s-coac mb-2" : ""
+                    } ${isActive && !collapsed ? "active" : ""}`
+                  }
                 >
                   {collapsed ? (
                     <div>
@@ -250,15 +262,42 @@ const MyProSidebar = () => {
                   ) : (
                     <>
                       <div>
-                        <LiaChessKingSolid className="s-icon fs-2   " />
+                        <LiaChessKingSolid className="s-icon fs-2" />
                       </div>
                       <div>
-                        <p className="s-p">Coach</p>
+                        <p className="s-p">Coaches</p>
                       </div>
                     </>
                   )}
-                </Link>
+                </NavLink>
               </li>
+              <li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
+  <NavLink
+    to="/account"
+    className={({ isActive }) =>
+      `nav-link s-link d-flex gap-2 ${
+        collapsed ? "icon-button horse s-acc mb-2" : ""
+      } ${isActive && !collapsed ? "active" : ""}`
+    }
+  >
+    {collapsed ? (
+      <div>
+        <MdAccountBalance className="s-icon-1 fs-3 icon-horse" />
+        <span></span>
+      </div>
+    ) : (
+      <>
+        <div>
+          <MdAccountBalance className="s-icon fs-2" />
+        </div>
+        <div>
+          <p className="s-p">Accounts</p>
+        </div>
+      </>
+    )}
+  </NavLink>
+</li>
+
             </ul>
           </Box>
         </Menu>

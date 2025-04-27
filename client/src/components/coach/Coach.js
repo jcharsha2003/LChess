@@ -31,7 +31,23 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { useForm, Controller } from "react-hook-form";
 const Coach = () => {
+      const [countryCodeRules, setCountryCodeRules] = useState({});
     
+      // Fetch countryCodeRules from the static JSON file
+      useEffect(() => {
+        const fetchCountryCodeRules = async () => {
+          try {
+            const response = await fetch("./countryCodeRules_full.json");
+            const data = await response.json();
+            
+            setCountryCodeRules(data);
+          } catch (error) {
+            console.error("Failed to load country code rules:", error);
+          }
+        };
+    
+        fetchCountryCodeRules();
+      }, []);
       const [isEditing, setIsEditing] = useState(false);
       const dt = useRef(null);
       let {
@@ -743,46 +759,24 @@ const Coach = () => {
             rel="stylesheet"
             href="https://site-assets.fontawesome.com/releases/v6.4.0/css/all.css"
           ></link>
-          <div className=" text-center mx-5">
-            <div className="row mt-5  ">
-              <div className="col-lg-4 my-3  ">
-                <div className="card s-col mx-4">
-                  <div className="card-body d-flex gap-3 ">
-                    <FaUsers className="icon-stu fs-3" />
-                    <div>
-                      <h5 className="stu-context">Total Coaches :</h5>
-                      <h5 className="stu-context">{Coaches?.length}</h5>
-                    </div>
-    
-                    <div class="ag-courses-item_bg"></div>
-                  </div>
-                </div>
-              </div>
-    
-              <div className="col-lg-4 my-3  ">
-                <div className="card s-col mx-4">
-                  <div className="card-body d-flex gap-3">
-                    <FaChartLine className="icon-stu fs-3 " />
-                    <div>
-                      <h5 className="stu-context">Total Revenu </h5>
-                    </div>
-                    <div class="ag-courses-item_bg"></div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-4 my-3  ">
-                <div className="card s-col mx-4">
-                  <div className="card-body d-flex gap-3">
-                    <GiSandsOfTime className="icon-stu fs-3 " />
-                    <div>
-                      <h5 className="stu-context">Due Payment </h5>
-                    </div>
-                    <div class="ag-courses-item_bg"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="container">
+  <div className="d-flex justify-content-center my-5">
+    <div
+      className="card s-col "
+      style={{width:"18rem"}}
+    >
+      <div className="card-body d-flex gap-3 align-items-center">
+        <FaUsers className="icon-stu fs-3" />
+        <div>
+          <h5 className="stu-context mb-1">Total Coaches:</h5>
+          <h5 className="stu-context text-center">{Coaches?.length}</h5>
+        </div>
+        <div className="ag-courses-item_bg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
     
           <div className=" card s-Student my-5 mx-auto d-block rounded shadow">
             <div className="card-body">
@@ -924,7 +918,7 @@ const Coach = () => {
             visible={CoachDialog}
             style={{ width: "32rem" }}
             breakpoints={{ "960px": "75vw", "641px": "90vw" }}
-            header="Student Details"
+            header="Coach Details"
             modal
             className="p-fluid"
             footer={CoachDialogFooter}
@@ -1083,50 +1077,49 @@ const Coach = () => {
                 <div className="mb-5 me-5 d-block">
               <label className="form-label">WhatsApp Number</label>
               <Controller
-                name="Whatsapp"
-                control={control}
-                rules={{
-                  required: "Whatsapp number is required",
-                  validate: (value) => {
-                    const digits = value.replace(/\D/g, "");
+  name="Whatsapp"
+  control={control}
+  rules={{
+    required: "Whatsapp number is required",
+    validate: (value) => {
+      const digits = value.replace(/\D/g, "");
 
-                    if (digits.startsWith("91")) {
-                      if (digits.length !== 12)
-                        return "Indian numbers must be 10 digits after 91";
-                    } else if (digits.startsWith("1")) {
-                      if (digits.length !== 11)
-                        return "US numbers must be 10 digits after 1";
-                    } else if (digits.startsWith("81")) {
-                      if (digits.length < 11 || digits.length > 12)
-                        return "Japan numbers must be 9–10 digits after 81";
-                    } else if (digits.startsWith("44")) {
-                      if (digits.length < 11 || digits.length > 12)
-                        return "UK numbers must be 10–11 digits after 44";
-                    } else {
-                      return "Unsupported country code or invalid number";
-                    }
+      const countryCodes = Object.keys(countryCodeRules).sort(
+        (a, b) => b.length - a.length
+      ); // longest match first
 
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <PhoneInput
-                    country={"in"}
-                    value={field.value}
-                    onChange={(val) => field.onChange(val)}
-                    enableSearch
-                    inputProps={{
-                      name: "Whatsapp",
-                      ref: (el) => {
-                        // ✅ properly assign ref so react-hook-form can focus it on error
-                        field.ref({
-                          focus: () => el?.focus(),
-                        });
-                      },
-                    }}
-                  />
-                )}
-              />
+      const matchedCode = countryCodes.find((code) =>
+        digits.startsWith(code)
+      );
+
+      if (matchedCode) {
+        const rule = countryCodeRules[matchedCode];
+        if (digits.length < rule.min || digits.length > rule.max) {
+          return rule.message;
+        }
+        return true;
+      }
+
+      return "Unsupported or invalid country code";
+    },
+  }}
+  render={({ field }) => (
+    <PhoneInput
+      country={"in"}
+      value={field.value}
+      onChange={(val) => field.onChange(val)}
+      enableSearch
+      inputProps={{
+        name: "Whatsapp",
+        ref: (el) => {
+          field.ref({
+            focus: () => el?.focus(),
+          });
+        },
+      }}
+    />
+  )}
+/>
 
               {errors?.Whatsapp && (
                 <p style={{ color: "red", fontSize: "14px" }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useMemo  } from "react";
 import "./Practice.css";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { MdScheduleSend } from "react-icons/md";
@@ -155,20 +155,46 @@ const Practice = () => {
 
     console.log(getValues())
   };
-  
-  const selectedMainCoach = watch("coaches.main");
-  const selectedSubCoaches = watch("coaches.sub_coaches") || [];
+  const selectedMainCoach = watch('coaches.main');
+  const selectedSubCoaches = watch('coaches.sub_coaches') || [];
 
-  // Convert fetched coaches to dropdown options
-  const coachOptions = Coach?.map((c) => ({
-    label: c.Full_Name,
-    value: c.Full_Name,
-  }));
+  // Coach options with metadata for rendering
+  const coachOptions = useMemo(() => {
+    return Coach.map((c) => ({
+      label: c.Full_Name,
+      value: c.Full_Name,
+      status: c.status,
+    }));
+  }, [Coach]);
 
-  // Filter sub-coach options to exclude main coach
-  const subCoachOptions = coachOptions.filter(
-    (coach) => coach.value !== selectedMainCoach
+  // Sub coach options excluding main coach
+  const subCoachOptions = useMemo(() => {
+    return coachOptions.filter((coach) => coach.value !== selectedMainCoach);
+  }, [coachOptions, selectedMainCoach]);
+
+  // Auto remove main coach from sub coach list
+  useEffect(() => {
+    if (selectedMainCoach && selectedSubCoaches.includes(selectedMainCoach)) {
+      setValue(
+        'coaches.sub_coaches',
+        selectedSubCoaches.filter((c) => c !== selectedMainCoach)
+      );
+    }
+  }, [selectedMainCoach, selectedSubCoaches, setValue]);
+  // Custom rendering of options with status badge
+  const coachItemTemplate = (option) => (
+    <div className="d-flex align-items-center justify-content-between">
+      <span>{option.label}</span>
+      <span
+        className={`badge ${
+          option.status === 'Active' ? 'bg-success' : 'bg-danger'
+        } ms-2`}
+      >
+        {option.status}
+      </span>
+    </div>
   );
+
   const confirmDeleteBatch = (batch) => {
     setBatch({ ...batch }); // Setting the batch data in state
     setDeleteBatchDialog(true); // Opening the batch deletion confirmation dialog
@@ -196,7 +222,7 @@ const Practice = () => {
         });
       });
     });
-    console.log(flat,batches);
+   console.log(flat)
     return flat;
   };
   const deleteBatches = () => {
@@ -380,6 +406,7 @@ const Practice = () => {
           console.log(originalData)
           // Store modified data if needed (e.g., filtered or formatted data)
           setBatchDetails(getBatchDetails(modifiedData));
+          
         }
 
         if (response.status !== 200) {
@@ -444,8 +471,10 @@ const Practice = () => {
   };
 
   const saveModifiedUser = () => {
+  
     if (Object.keys(errors).length === 0) {
       let modifiedUser = getValues();
+      console.log(modifiedUser)
       if (modifiedUser.start_date instanceof Date) {
         modifiedUser.start_date = modifiedUser.start_date
           .toISOString()
@@ -1751,65 +1780,66 @@ useEffect(() => {
 
               </div>
               {/* second column */}
-             
-              <div className="col-lg-6   ">
-            
-
-    {/* Main Coach Dropdown */}
-    <div className="field mb-5">
-              <label className="mb-2">Main Coach</label>
-              <Controller
-                name="coaches.main"
-                control={control}
-                rules={{ required: "Please select a main coach" }}
-                render={({ field }) => (
-                  <Dropdown
-                    {...field}
-                    value={field.value || null}
-                    onChange={(e) => {
-                      field.onChange(e.value);
-                      setValue(
-                        "coaches.sub_coaches",
-                        selectedSubCoaches.filter((sc) => sc !== e.value)
-                      ); // Remove new main from subs
-                    }}
-                    options={coachOptions}
-                    placeholder="Select Main Coach"
-                    className={`w-15rem ${
-                      errors.coaches?.main ? "p-invalid" : ""
-                    }`}
-                  />
-                )}
-              />
-              <FaChalkboardTeacher className="i" />
-              {errors.coaches?.main && (
-                <small className="p-error">{errors.coaches.main.message}</small>
+              <div className="col-lg-6">
+          {/* Main Coach Dropdown */}
+          <div className="field mb-5">
+            <label className="mb-2">Main Coach</label>
+            <Controller
+              name="coaches.main"
+              control={control}
+              rules={{ required: 'Please select a main coach' }}
+              render={({ field }) => (
+                <Dropdown
+                  {...field}
+                  value={field.value || null}
+                  onChange={(e) => {
+                    field.onChange(e.value);
+                    setValue(
+                      'coaches.sub_coaches',
+                      selectedSubCoaches.filter((sc) => sc !== e.value)
+                    );
+                  }}
+                  options={coachOptions}
+                  optionLabel="label"
+                  itemTemplate={coachItemTemplate}
+                  placeholder="Select Main Coach"
+                  className={`w-15rem ${
+                    errors.coaches?.main ? 'p-invalid' : ''
+                  }`}
+                />
               )}
-            </div>
+            />
+            <FaChalkboardTeacher className="i" />
+            {errors.coaches?.main && (
+              <small className="p-error">{errors.coaches.main.message}</small>
+            )}
+          </div>
 
-            {/* Sub Coaches MultiSelect */}
-            <div className="field mb-5">
-              <label className="mb-2">Sub Coaches</label>
-              <Controller
-                name="coaches.sub_coaches"
-                control={control}
-                render={({ field }) => (
-                  <MultiSelect
-                    {...field}
-                    value={field.value || []}
-                    onChange={(e) => field.onChange(e.value)}
-                    options={subCoachOptions}
-                    placeholder="Select Sub Coaches"
-                    className={`w-15rem ${
-                      errors.coaches?.sub_coaches ? "p-invalid" : ""
-                    }`}
-                    display="chip"
-                  />
-                )}
-              />
-              <HiUserGroup className="i" />
-            </div>
-              </div>
+          {/* Sub Coaches MultiSelect */}
+          <div className="field mb-5">
+            <label className="mb-2">Sub Coaches</label>
+            <Controller
+              name="coaches.sub_coaches"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  {...field}
+                  value={field.value || []}
+                  onChange={(e) => field.onChange(e.value)}
+                  options={subCoachOptions}
+                  optionLabel="label"
+                  itemTemplate={coachItemTemplate}
+                  placeholder="Select Sub Coaches"
+                  className={`w-15rem ${
+                    errors.coaches?.sub_coaches ? 'p-invalid' : ''
+                  }`}
+                  display="chip"
+                />
+              )}
+            />
+            <HiUserGroup className="i" />
+          </div>
+        </div>
             </div>
           
 

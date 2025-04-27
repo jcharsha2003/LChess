@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useMemo } from "react";
 import "./Student.css";
 import { FaUsers } from "react-icons/fa";
 import { FaChartLine } from "react-icons/fa";
@@ -18,6 +18,7 @@ import { GiCancel } from "react-icons/gi";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { Calendar } from "primereact/calendar";
 import { Dialog } from "primereact/dialog";
+import { Dropdown } from 'primereact/dropdown';
 
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -34,12 +35,30 @@ import { InputIcon } from "primereact/inputicon";
 import { useForm, Controller } from "react-hook-form";
 
 const Student = () => {
+  const [countryCodeRules, setCountryCodeRules] = useState({});
+
+  // Fetch countryCodeRules from the static JSON file
+  useEffect(() => {
+    const fetchCountryCodeRules = async () => {
+      try {
+        const response = await fetch("./countryCodeRules_full.json");
+        const data = await response.json();
+        
+        setCountryCodeRules(data);
+      } catch (error) {
+        console.error("Failed to load country code rules:", error);
+      }
+    };
+
+    fetchCountryCodeRules();
+  }, []);
   const [isEditing, setIsEditing] = useState(false);
   const dt = useRef(null);
   let {
     register,
     control,
     handleSubmit,
+    watch,
     setValue,
     getValues,
     reset,
@@ -59,17 +78,24 @@ const Student = () => {
     Country: "",
     Coach: "",
     Payment_Details: {
-      Payment_Plan_Type: "",
       Currency: "",
       Payment_Amount: 0,
       Payment_Date: "",
       Payment_Method: "",
-      Next_Payment_Due_Date: "",
-      Total_Paid_to_Date: 0,
-      New_Payment_Made: false,
+      Due_Date: "" // renamed from Next_Payment_Due_Date
     },
     status: "Active",
+    coach_fees: [  {
+      coach_name: "",
+      coach_fee: 0,
+    }]
+    
+    ,
+    profit: 0,
+    percentage_profit: 0,
+    payment_status: "" // e.g., "Paid", "Unpaid"
   };
+  
   const [studentDialog, setStudentDialog] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [selectedCustomers, setSelectedCustomers] = useState(null);
@@ -142,7 +168,7 @@ const Student = () => {
     setStudent({ ...student });
     setIsEditing(true);
     setStudentDialog(true);
-    console.log(student?.Whatsapp);
+    
     setValue("Client_ID", student?.Client_ID);
     setValue("Full_Name", student?.Full_Name);
     setValue("Parent", student?.Parent);
@@ -154,6 +180,7 @@ const Student = () => {
     setValue("Country", student?.Country);
     setValue("Email_Address", student?.Email_Address);
     setValue("Address", student?.Address);
+    
     setValue("Coach", student?.Coach);
     setValue("status", student?.status);
     setValue("_id", student?._id);
@@ -164,7 +191,7 @@ const Student = () => {
   };
 
 
- 
+
   // get Batches
   let [batches, setBatches] = useState([]);
   const getBatches = () => {
@@ -214,7 +241,7 @@ const Student = () => {
             theme: "colored",
             transition: Bounce,
           });
-          console.log(err.response);
+          
         } else if (err.request) {
           setError(err.message);
           toast.error(err.message, {
@@ -258,8 +285,8 @@ const Student = () => {
 
           
 
-          // Store original data in Coaches (unchanged)
-          setCoaches(originalData);
+        
+setCoaches(originalData);
           
           // Store modified data in customers
           
@@ -295,7 +322,7 @@ const Student = () => {
             theme: "colored",
             transition: Bounce,
           });
-          console.log(err.response);
+        
         } else if (err.request) {
           setError(err.message);
           toast.error(err.message, {
@@ -335,11 +362,11 @@ const Student = () => {
       }
       const raw = getValues("Whatsapp");
       modifiedUser.Whatsapp = raw.startsWith("+") ? raw : "+" + raw;
-      console.log(modifiedUser)
+    
       const existing = customers.find(
         (c) => c.Client_ID === modifiedUser.Client_ID && c._id !== modifiedUser._id
       );
- console.log(existing)
+
 if (existing) {
   toast.error("Client ID already exists. Please choose a different one.", {
     position: "top-right",
@@ -454,7 +481,7 @@ if (existing) {
           let originalData = JSON.parse(JSON.stringify(response.data.payload));
           let modifiedData = JSON.parse(JSON.stringify(response.data.payload)); // Separate copy for modifications
 
-          console.log(originalData, modifiedData);
+          console.log(originalData);
 
           // Store original data in students (unchanged)
           setStudents(originalData);
@@ -492,7 +519,7 @@ if (existing) {
             theme: "colored",
             transition: Bounce,
           });
-          console.log(err.response);
+         
         } else if (err.request) {
           setError(err.message);
           toast.error(err.message, {
@@ -522,7 +549,57 @@ if (existing) {
         }
       });
   };
+  
+  const selectedBatchId = watch("Batch");
+  const selectedBatch = useMemo(() => batches?.find(b => b.batch_id === selectedBatchId), [batches, selectedBatchId]);
+  // Show toast if batch selected but not found
 
+
+  const coachOptions = useMemo(() => {
+    if (!selectedBatch) return [];
+  
+    const { main, sub_coaches } = selectedBatch.coaches;
+    const coachNames = [main, ...sub_coaches];
+  
+    return Coaches
+      .filter(c => coachNames.includes(c.Full_Name))
+      .map(c => ({
+        label: c.Full_Name,
+        value: c.Full_Name,
+        status: c.status,
+        isMain: c.Full_Name === main
+      }));
+  }, [selectedBatch, Coaches]);
+  
+
+  const coachItemTemplate = (option) => {
+    return (
+      <div className="d-flex justify-content-between align-items-center w-100">
+        <span>
+          {option.label} {option.isMain && <strong>(main)</strong>}
+        </span>
+        <span className={`badge ${option.status === 'Active' ? 'bg-success' : 'bg-danger'}`}>
+          {option.status}
+        </span>
+      </div>
+    );
+  };
+  const coachValueTemplate = (option, props) => {
+    if (!option) return <span className="text-muted">{props.placeholder}</span>;
+  
+    return (
+      <div className="d-flex justify-content-between align-items-center w-100">
+        <span>
+          {option.label} {option.isMain && <strong>(main)</strong>}
+        </span>
+        <span className={`badge ${option.status === 'Active' ? 'bg-success' : 'bg-danger'}`}>
+          {option.status}
+        </span>
+      </div>
+    );
+  };
+    
+  
   const addNewStudent = () => {
     if (Object.keys(errors).length === 0) {
       let modifiedUser = getValues();
@@ -540,7 +617,7 @@ if (existing) {
         },
       };
 
-      console.log(finalStudent);
+    
       axios
         .post(`${process.env.REACT_APP_API_URL}/student-api/add-student`, finalStudent, {
           headers: { Authorization: "Bearer " + token },
@@ -575,7 +652,7 @@ if (existing) {
               theme: "colored",
               transition: Bounce,
             });
-            console.log(err.response);
+            
           } else if (err.request) {
             setError(err.message);
             toast.error(err.message, {
@@ -643,7 +720,7 @@ if (existing) {
             theme: "colored",
             transition: Bounce,
           });
-          console.log(err.response);
+          
         } else if (err.request) {
           setError(err.message);
           toast.error(err.message, {
@@ -713,7 +790,7 @@ if (existing) {
             theme: "colored",
             transition: Bounce,
           });
-          console.log(err.response);
+          
         } else if (err.request) {
           setError(err.message);
           toast.error(err.message, {
@@ -1002,7 +1079,7 @@ if (existing) {
   };
 
   const header = renderHeader();
-  console.log("Currently Selected Customers:", selectedCustomers);
+ 
   return (
     <div>
       <link
@@ -1105,7 +1182,7 @@ if (existing) {
                           header="Status"
                           sortable
                           filter
-                          filterPlaceholder="Search by Status"
+                       
                           style={{ minWidth: "14rem" }}
                           body={representativeBodyTemplate}
                           filterElement={representativeFilterTemplate}
@@ -1216,6 +1293,7 @@ if (existing) {
         onHide={hideDialog}
       >
         <form className="mt-5">
+       
           <div className="container ecat">
             <div className="inputbox4 form-floating">
               <i className="fa-regular fa-user"></i>
@@ -1454,71 +1532,92 @@ if (existing) {
   <i className="fa-solid fa-person-chalkboard"></i>
   <label htmlFor="Coach" className="mb-2">Coach</label>
   <div style={{ maxHeight: "150px", overflowY: "auto" }}>
-  <select
-    id="Coach"
-    {...register("Coach", { required: "Please select a coach" })}
-    defaultValue=""
-    className={`w-75 form-select ${errors.Coach ? "p-invalid" : ""}`}
-  >
-    <option value="" disabled>Select Coach</option>
-    {Coaches.map((c, i) => (
-      <option key={i} value={c.Full_Name}>{c.Full_Name}</option>
-    ))}
-  </select>
+    {selectedBatch ? (
+      <Controller
+      name="Coach"
+      control={control}
+      rules={{ required: "Please select a coach" }}
+      render={({ field }) => (
+        <Dropdown
+          id="Coach"
+          {...field} // Automatically binds the value from React Hook Form
+          value={field.value} // Explicitly set the value
+          options={coachOptions}
+          optionLabel="label"
+          itemTemplate={coachItemTemplate}
+          valueTemplate={coachValueTemplate}
+          placeholder="Select Coach"
+          appendTo={typeof window !== "undefined" ? document.body : null} // Ensure dropdown appends to body
+          panelStyle={{
+            maxHeight: "250px",
+            overflowY: "auto",
+            zIndex: 9999, // Ensure dropdown is visible on top
+          }}
+          className={`w-75 ${errors.Coach ? "p-invalid" : ""}`}
+        />
+      )}
+    />
+    
+    ) : (
+      <div className="alert alert-warning mt-2">
+        ⚠️ Please select a batch to view coaches.
+      </div>
+    )}
   </div>
-  
   {errors.Coach && (
     <small className="p-error">{errors.Coach.message}</small>
   )}
 </div>
 
+
+
+
             <div className="mb-5 me-5 d-block">
               <label className="form-label">WhatsApp Number</label>
               <Controller
-                name="Whatsapp"
-                control={control}
-                rules={{
-                  required: "Whatsapp number is required",
-                  validate: (value) => {
-                    const digits = value.replace(/\D/g, "");
+      name="Whatsapp"
+      control={control}
+      rules={{
+        required: "Whatsapp number is required",
+        validate: (value) => {
+          const digits = value.replace(/\D/g, "");
 
-                    if (digits.startsWith("91")) {
-                      if (digits.length !== 12)
-                        return "Indian numbers must be 10 digits after 91";
-                    } else if (digits.startsWith("1")) {
-                      if (digits.length !== 11)
-                        return "US numbers must be 10 digits after 1";
-                    } else if (digits.startsWith("81")) {
-                      if (digits.length < 11 || digits.length > 12)
-                        return "Japan numbers must be 9–10 digits after 81";
-                    } else if (digits.startsWith("44")) {
-                      if (digits.length < 11 || digits.length > 12)
-                        return "UK numbers must be 10–11 digits after 44";
-                    } else {
-                      return "Unsupported country code or invalid number";
-                    }
+          const countryCodes = Object.keys(countryCodeRules).sort(
+            (a, b) => b.length - a.length
+          ); // Sort to match longest prefix first
 
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <PhoneInput
-                    country={"in"}
-                    value={field.value}
-                    onChange={(val) => field.onChange(val)}
-                    enableSearch
-                    inputProps={{
-                      name: "Whatsapp",
-                      ref: (el) => {
-                        // ✅ properly assign ref so react-hook-form can focus it on error
-                        field.ref({
-                          focus: () => el?.focus(),
-                        });
-                      },
-                    }}
-                  />
-                )}
-              />
+          const matchedCode = countryCodes.find((code) =>
+            digits.startsWith(code)
+          );
+
+          if (matchedCode) {
+            const rule = countryCodeRules[matchedCode];
+            if (digits.length < rule.min || digits.length > rule.max) {
+              return rule.message;
+            }
+            return true;
+          }
+
+          return "Unsupported or invalid country code";
+        },
+      }}
+      render={({ field }) => (
+        <PhoneInput
+          country={"in"}
+          value={field.value}
+          onChange={(val) => field.onChange(val)}
+          enableSearch
+          inputProps={{
+            name: "Whatsapp",
+            ref: (el) => {
+              field.ref({
+                focus: () => el?.focus(),
+              });
+            },
+          }}
+        />
+      )}
+    />
 
               {errors?.Whatsapp && (
                 <p style={{ color: "red", fontSize: "14px" }}>
@@ -1553,9 +1652,18 @@ if (existing) {
         </div>
       </Dialog>
       <Dialog visible={deleteProductsDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
-                <div className="confirmation-content">
-                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                <div className="confirmation-content text-danger d-flex gap-2">
+                  <div>
+                  <i
+            className="fa-solid fa-triangle-exclamation"
+            style={{ fontSize: "2rem", padding: "2rem" }}
+          ></i>
+                    </div>
+                    <div className="mt-3 fs-5">
+
                     {student && <span>Are you sure you want to delete the selected Students?</span>}
+                    </div>
+              
                 </div>
             </Dialog>
     </div>

@@ -17,7 +17,6 @@ batchapp.get(
     //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
-
     //verify username
     let userOfDB = await userCollection.findOne({
       _id: new ObjectId(userId),
@@ -28,6 +27,7 @@ batchapp.get(
     //if username is valid
     else {
       if (userOfDB?.role === "admin") {
+        
         response.status(200).send({ message: "users list", payload: batches });
       } else {
         response.status(200).send({ message: "UnAuthorized user" });

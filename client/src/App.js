@@ -12,7 +12,7 @@ import Theory from "./components/theory/Theory";
 import MiniRoot from "./components/rootlayout/MiniRoot";
 import Practice from "./components/practice/Practice";
 import Coach from "./components/coach/Coach";
-
+import Account from "./components/account/Account";
 
 function App() {
  
@@ -48,8 +48,8 @@ function App() {
           element: <Practice />,
         },
         {
-          path: "/theory",
-          element: <Theory />,
+          path: "/account",
+          element: <Account />,
           
         },
         {
