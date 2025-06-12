@@ -1,8 +1,5 @@
 import axios from "axios";
-
-import React from "react";
 import { useState } from "react";
-
 import "./Theory.css";
 import { useForm } from "react-hook-form";
 
@@ -16,8 +13,6 @@ const Theory = () => {
   } = useForm();
 
   let formSubmit = (newUser) => {
-   
-
     axios
       .post(`/register-user`, newUser)
       .then((response) => {

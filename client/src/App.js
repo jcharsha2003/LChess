@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import Register from "./components/register/Register";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
+import Due from "./components/due/Due";
 import Home from "./components/home/Home";
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
@@ -50,6 +50,11 @@ function App() {
         {
           path: "/account",
           element: <Account />,
+          
+        },
+        {
+          path: "/due",
+          element: <Due />,
           
         },
         {

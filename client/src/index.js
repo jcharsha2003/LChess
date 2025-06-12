@@ -5,15 +5,17 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import UserLoginContextStore from "./context/UserLoginContextStore";
 import { ToastContainer,Bounce} from 'react-toastify';
-
+import { NotificationProvider } from "./context/NotificationContext";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
      
      
     
      <UserLoginContextStore> 
-          
-    <App />
+          <NotificationProvider>
+               <App />
+        
+    
    
      <ToastContainer
 position="top-right"
@@ -28,6 +30,7 @@ pauseOnHover
 theme="colored"
 transition={Bounce}
 />
+  </NotificationProvider>
 </UserLoginContextStore>
    
 

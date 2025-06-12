@@ -25,7 +25,7 @@ function RootLayout() {
         if (response.data.message==="success") {
           
           setCurrentUser({...response.data.user})
-          console.log(currentUser)
+          
           // update user login status
           setUserLoginStatus(true)
           setError("")

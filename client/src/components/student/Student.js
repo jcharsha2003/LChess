@@ -64,37 +64,25 @@ const Student = () => {
     reset,
     formState: { errors },
   } = useForm();
-  let emptyStudent = {
-    Client_ID: "",
-    Full_Name: "",
-    Parent: "",
-    Batch: "",
-    Age: 0,
-    Email_Address: "",
-    Gender: "",
-    Whatsapp: "",
-    Enrollment_Date: "",
-    Address: "",
-    Country: "",
-    Coach: "",
-    Payment_Details: {
-      Currency: "",
-      Payment_Amount: 0,
-      Payment_Date: "",
-      Payment_Method: "",
-      Due_Date: "" // renamed from Next_Payment_Due_Date
-    },
-    status: "Active",
-    coach_fees: [  {
-      coach_name: "",
-      coach_fee: 0,
-    }]
-    
-    ,
-    profit: 0,
-    percentage_profit: 0,
-    payment_status: "" // e.g., "Paid", "Unpaid"
-  };
+const emptyStudent = {
+  Client_ID: "",
+  Full_Name: "",
+  Parent: "",
+  Batch: "",
+  Age: 0,
+  Email_Address: "",
+  Gender: "",
+  Whatsapp: "",
+  Enrollment_Date: "",
+  Address: "",
+  Country: "",
+  Coach: "",
+  // Payment_Details: { "<currentYear>": {} }
+  Payment_Details: {
+    [String(new Date().getFullYear())]: {}
+  },
+  status: "Active"
+};
   
   const [studentDialog, setStudentDialog] = useState(false);
   const [customers, setCustomers] = useState([]);
@@ -600,91 +588,105 @@ if (existing) {
   };
     
   
-  const addNewStudent = () => {
-    if (Object.keys(errors).length === 0) {
-      let modifiedUser = getValues();
-      if (modifiedUser.Enrollment_Date instanceof Date) {
-        modifiedUser.Enrollment_Date =
-          modifiedUser.Enrollment_Date.toISOString().split("T")[0];
-      }
-      // Merge filled user data with emptyStudent (ensuring all fields exist)
-      let finalStudent = {
-        ...emptyStudent, // Default values
-        ...modifiedUser, // User input values
-        Payment_Details: {
-          ...emptyStudent.Payment_Details, // Default payment structure
-          ...(modifiedUser.Payment_Details || {}), // User payment details (if any)
-        },
-      };
+const addNewStudent = () => {
+  if (Object.keys(errors).length === 0) {
+    let modifiedUser = getValues();
 
-    
-      axios
-        .post(`${process.env.REACT_APP_API_URL}/student-api/add-student`, finalStudent, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            toast.success(response.data.message, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-              transition: Bounce,
-            });
-            getStudents();
-          }
-        })
-        .catch((err) => {
-          if (err.response) {
-            setError(err.message);
-            toast.error(err.response.data.message, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              transition: Bounce,
-            });
-            
-          } else if (err.request) {
-            setError(err.message);
-            toast.error(err.message, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              transition: Bounce,
-            });
-          } else {
-            setError(err.message);
-            toast.error(err.message, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              transition: Bounce,
-            });
-          }
-        });
-
-      hideDialog();
+    // Format Enrollment_Date if it's a Date object
+    if (modifiedUser.Enrollment_Date instanceof Date) {
+      modifiedUser.Enrollment_Date =
+        modifiedUser.Enrollment_Date.toISOString().split("T")[0];
     }
-  };
+
+    // Get current year as string
+    const currentYear = String(new Date().getFullYear());
+
+    // Prepare the student object
+    let finalStudent = {
+      Client_ID: modifiedUser.Client_ID || "",
+      Full_Name: modifiedUser.Full_Name || "",
+      Parent: modifiedUser.Parent || "",
+      Batch: modifiedUser.Batch || "",
+      Age: Number(modifiedUser.Age) || 0,
+      Email_Address: modifiedUser.Email_Address || "",
+      Gender: modifiedUser.Gender || "",
+      Whatsapp: modifiedUser.Whatsapp || "",
+      Enrollment_Date: modifiedUser.Enrollment_Date || "",
+      Address: modifiedUser.Address || "",
+      Country: modifiedUser.Country || "",
+      Coach: modifiedUser.Coach || "",
+      Payment_Details: {
+        [currentYear]: {}
+      },
+      status: "Active"
+    };
+
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/student-api/add-student`, finalStudent, {
+        headers: { Authorization: "Bearer " + token },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+          getStudents();
+        }
+      })
+      .catch((err) => {
+        if (err.response) {
+          setError(err.message);
+          toast.error(err.response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        } else if (err.request) {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        } else {
+          setError(err.message);
+          toast.error(err.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+          });
+        }
+      });
+
+    hideDialog();
+  }
+};
   const deleteStudent = () => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/student-api/delete-student/${student?._id}`, {
@@ -976,23 +978,17 @@ if (existing) {
       </button>
     </React.Fragment>
   );
-  const openNew = () => {
-    setStudent(emptyStudent);
-    setIsEditing(false);
-    setSubmitted(false);
-    setStudentDialog(true);
+const openNew = () => {
+  setStudent(emptyStudent);
+  setIsEditing(false);
+  setSubmitted(false);
+  setStudentDialog(true);
 
-    Object.entries(emptyStudent).forEach(([key, value]) => {
-      if (typeof value === "object" && value !== null) {
-        // If it's a nested object, iterate over its properties
-        Object.entries(value).forEach(([nestedKey, nestedValue]) => {
-          setValue(`${key}.${nestedKey}`, nestedValue);
-        });
-      } else {
-        setValue(key, value);
-      }
-    });
-  };
+  // Set all top-level fields
+  Object.entries(emptyStudent).forEach(([key, value]) => {
+    setValue(key, value);
+  });
+};
   const exportCSV = () => {
     dt.current.exportCSV();
   };

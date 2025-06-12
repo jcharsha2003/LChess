@@ -7,9 +7,8 @@ import { useProSidebar } from "react-pro-sidebar";
 import "./MyProSidebar.css";
 import { useSidebarContext } from "./sidebarContext";
 import { MdAccountBalance } from "react-icons/md";
-import { GiTeacher } from "react-icons/gi";
-import { GiTabletopPlayers } from "react-icons/gi";
-import { Link } from "react-router-dom";
+import { GiReceiveMoney } from "react-icons/gi";
+
 import { NavLink } from "react-router-dom";
 import { FaChess } from "react-icons/fa6";
 import { Box, Typography, IconButton } from "@mui/material";
@@ -18,7 +17,7 @@ import { SiChessdotcom } from "react-icons/si";
 import { IoReorderThreeOutline } from "react-icons/io5";
 import { LiaChessKingSolid } from "react-icons/lia";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+
 
 import SwitchRightOutlinedIcon from "@mui/icons-material/SwitchRightOutlined";
 import SwitchLeftOutlinedIcon from "@mui/icons-material/SwitchLeftOutlined";
@@ -36,7 +35,7 @@ const MyProSidebar = () => {
   const { sidebarRTL, setSidebarRTL, sidebarImage } = useSidebarContext();
   const { collapseSidebar, toggleSidebar, collapsed, broken } = useProSidebar();
 
-  console.log(sidebarRTL, broken);
+  
   return (
     <Box
       sx={{
@@ -292,6 +291,32 @@ const MyProSidebar = () => {
         </div>
         <div>
           <p className="s-p">Accounts</p>
+        </div>
+      </>
+    )}
+  </NavLink>
+</li>
+<li className={`nav-item ${collapsed ? "collapsed" : ""} my-3`}>
+  <NavLink
+    to="/due"
+    className={({ isActive }) =>
+      `nav-link s-link d-flex gap-2 ${
+        collapsed ? "icon-button horse s-due mb-2" : ""
+      } ${isActive && !collapsed ? "active" : ""}`
+    }
+  >
+    {collapsed ? (
+      <div>
+        <GiReceiveMoney className="s-icon-1 fs-3 icon-horse" />
+        <span></span>
+      </div>
+    ) : (
+      <>
+        <div>
+          <GiReceiveMoney className="s-icon fs-2" />
+        </div>
+        <div>
+          <p className="s-p">Due</p>
         </div>
       </>
     )}

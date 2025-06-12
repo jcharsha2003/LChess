@@ -13,8 +13,8 @@ import logo from "../../images/logo-c.png";
 import { IconButton } from "@mui/material";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import "./NavbarMain.css";
-
-const NavbarMain = (props) => {
+import NotificationBar from "./NotificationBar";
+const NavbarMain = () => {
   const { toggleSidebar, broken, rtl } = useProSidebar();
 let [currentUser,error,setError,userLoginStatus,setUserLoginStatus,loginUser,logoutUser,role,setRole,setCurrentUser] = useContext(loginContext);
 
@@ -30,6 +30,8 @@ let [currentUser,error,setError,userLoginStatus,setUserLoginStatus,loginUser,log
             LChess
           </Link>
         </div>
+        
+
         {broken && !rtl && userLoginStatus && (
           <IconButton
             sx={{ margin: "0 6 0 2" }}
@@ -87,7 +89,10 @@ let [currentUser,error,setError,userLoginStatus,setUserLoginStatus,loginUser,log
                     <span></span>
                   </Link>
                 </li>
-
+  {/* Notification bell here */}
+  <NotificationBar
+   
+  />
                 <li className="nav-item active mx-2">
                   <Link
                     className="nav-link  icon-button horse "

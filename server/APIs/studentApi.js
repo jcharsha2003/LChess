@@ -17,7 +17,7 @@ studentapp.get(
     //get user credentials from req
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
-
+    
     //verify username
     let userOfDB = await userCollection.findOne({
       _id: new ObjectId(userId),
@@ -231,43 +231,64 @@ studentapp.get(
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
 
-    // Get the user to verify role
+    const { year, month } = request.query;
+
+    if (!year || !month) {
+      return response.status(400).send({ message: "Year and month are required" });
+    }
+
     const userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!userOfDB) {
-      return response.status(200).send({ message: "Invalid User" });
+      return response.status(401).send({ message: "Invalid User" });
     }
 
     if (userOfDB.role !== "admin") {
-      return response.status(200).send({ message: "UnAuthorized user" });
+      return response.status(403).send({ message: "Unauthorized user" });
     }
 
-    // Fetch all students
-    let students = await studentCollection.find({}).toArray();
+    const students = await studentCollection.find({}).toArray();
 
-    // Filter only valid financial students
-    const filteredStudents = students.filter((student) => {
-      const payment = student.Payment_Details || {};
-      const coachFees = student.coach_fees || [];
+    const filteredStudents = students
+      .map((student) => {
+        const paymentDetails = student.Payment_Details?.[year]?.[month];
 
-      const hasValidPayment =
-        payment.Payment_Amount > 0 &&
-        typeof payment.Currency === "string" &&
-        payment.Currency.trim() !== "";
+        if (!paymentDetails) return null;
 
-      const hasValidCoachFees = coachFees.some(
-        (c) =>
-          c &&
-          typeof c.coach_name === "string" &&
-          c.coach_name.trim() !== "" &&
-          c.coach_fee > 0
-      );
+        const hasValidPayment =
+          paymentDetails.Payment_Amount > 0 &&
+          typeof paymentDetails.Currency === "string" &&
+          paymentDetails.Currency.trim() !== "";
 
-      const hasProfit = student.profit > 0;
-      const hasPercentageProfit = student.percentage_profit > 0;
+        const hasValidCoachFees = Array.isArray(paymentDetails.coach_fees) &&
+          paymentDetails.coach_fees.some(
+            (c) =>
+              c &&
+              typeof c.coach_name === "string" &&
+              c.coach_name.trim() !== "" &&
+              c.coach_fee > 0
+          );
 
-      return hasValidPayment && hasValidCoachFees && hasProfit && hasPercentageProfit;
-    });
+        const hasProfit =
+          typeof paymentDetails.profit === "number" && paymentDetails.profit > 0;
+        const hasPercentageProfit =
+          typeof paymentDetails.percentage_profit === "number" &&
+          paymentDetails.percentage_profit > 0;
+
+        if (hasValidPayment && hasValidCoachFees && hasProfit && hasPercentageProfit) {
+          return {
+            ...student,
+            Payment_Details: {
+              [year]: {
+                [month]: paymentDetails,
+              },
+            },
+          };
+        }
+
+        return null;
+      })
+      .filter((s) => s !== null);
 
     response.status(200).send({
       message: "Filtered student accounts",
@@ -277,15 +298,16 @@ studentapp.get(
 );
 
 
+
 studentapp.put(
   "/soft-delete-student",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
     const studentCollection = request.app.get("studentCollection");
     const { _id } = request.body;
-
-    if (!_id) {
-      return response.status(400).send({ message: "Student ID is required" });
+ const { year, month } = request.query; 
+     if (!_id || !year || !month) {
+      return response.status(400).send({ message: "Student ID, year, and month are required" });
     }
 
     const studentId = new ObjectId(_id);
@@ -310,28 +332,28 @@ studentapp.put(
       return response.status(404).send({ message: "Student not found" });
     }
 
-    // Prepare cleaned coach_fees array
-    const clearedCoachFees = [
-      {
-        coach_name: "",
-        coach_fee: 0,
-      },
-    ];
-    const updateFields = {
-      "Payment_Details.Payment_Amount": 0,
-      "Payment_Details.Currency": "",
-      coach_fees: clearedCoachFees,
-      profit: 0,
-      percentage_profit: 0,
-    };
+   // Remove the selected month
+    const paymentDetails = { ...student.Payment_Details };
+    if (
+      paymentDetails[year] &&
+      paymentDetails[year][month]
+    ) {
+      delete paymentDetails[year][month];
+      // If the year has no months left, remove the year
+      if (Object.keys(paymentDetails[year]).length === 0) {
+        delete paymentDetails[year];
+      }
+    } else {
+      return response.status(400).send({ message: "No such month/year to delete" });
+    }
 
     const result = await studentCollection.updateOne(
       { _id: studentId },
-      { $set: updateFields }
+      { $set: { Payment_Details: paymentDetails } }
     );
 
     if (result.modifiedCount > 0) {
-      response.status(200).send({ message: "Student fields cleared successfully" });
+      response.status(200).send({ message: "Selected month account deleted successfully" });
     } else {
       response.status(400).send({ message: "No changes made" });
     }
@@ -345,19 +367,20 @@ studentapp.put(
     const studentCollection = request.app.get("studentCollection");
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
-
     const { students } = request.body;
+    const { year, month } = request.query;
 
     if (!Array.isArray(students) || students.length === 0) {
       return response.status(400).send({ message: "No students provided" });
     }
+    if (!year || !month) {
+      return response.status(400).send({ message: "Year and month are required" });
+    }
 
     const userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
-
     if (!userOfDB) {
       return response.status(401).send({ message: "Invalid User" });
     }
-
     if (userOfDB.role !== "admin") {
       return response.status(403).send({ message: "Unauthorized user" });
     }
@@ -367,34 +390,32 @@ studentapp.put(
     for (const student of students) {
       const studentId = new ObjectId(student._id);
       const existingStudent = await studentCollection.findOne({ _id: studentId });
-
       if (!existingStudent) continue;
 
-      const clearedCoachFees = [
-        {
-          coach_name: "",
-          coach_fee: 0,
-        },
-      ];
-
-      const updateFields = {
-        "Payment_Details.Payment_Amount": 0,
-        "Payment_Details.Currency": "",
-        coach_fees: clearedCoachFees,
-        profit: 0,
-        percentage_profit: 0,
-      };
+      // Remove the selected month
+      const paymentDetails = { ...existingStudent.Payment_Details };
+      if (
+        paymentDetails[year] &&
+        paymentDetails[year][month]
+      ) {
+        delete paymentDetails[year][month];
+        if (Object.keys(paymentDetails[year]).length === 0) {
+          delete paymentDetails[year];
+        }
+      } else {
+        updateResults.push({ _id: student._id, modified: false, reason: "No such month/year" });
+        continue;
+      }
 
       const result = await studentCollection.updateOne(
         { _id: studentId },
-        { $set: updateFields }
+        { $set: { Payment_Details: paymentDetails } }
       );
-
       updateResults.push({ _id: student._id, modified: result.modifiedCount > 0 });
     }
 
     response.status(200).send({
-      message: "Soft delete operation completed",
+      message: "Selected month accounts deleted for students",
       result: updateResults,
     });
   })
@@ -426,11 +447,39 @@ studentapp.put(
     }
 
     const studentId = new ObjectId(modifiedStudent._id);
+    
     delete modifiedStudent._id;
+  
+    // Get the updated year and month from the frontend
+    const updatedPaymentDetails = modifiedStudent.Payment_Details;
+    const updatedYear = Object.keys(updatedPaymentDetails)[0];
+    const updatedMonth = Object.keys(updatedPaymentDetails[updatedYear])[0];
+
+    // Fetch the existing student
+    const existingStudent = await studentCollection.findOne({ _id: studentId });
+
+    if (!existingStudent) {
+      return response.status(404).send({ message: "Student not found" });
+    }
+
+    // Merge Payment_Details
+    const mergedPaymentDetails = {
+      ...existingStudent.Payment_Details,
+      [updatedYear]: {
+        ...(existingStudent.Payment_Details?.[updatedYear] || {}),
+        [updatedMonth]: updatedPaymentDetails[updatedYear][updatedMonth],
+      },
+    };
+
+    // Prepare the update object
+    const updateObj = {
+      ...modifiedStudent,
+      Payment_Details: mergedPaymentDetails,
+    };
 
     const result = await studentCollection.updateOne(
       { _id: studentId },
-      { $set: modifiedStudent }
+      { $set: updateObj }
     );
 
     if (result.modifiedCount > 0) {
@@ -441,46 +490,107 @@ studentapp.put(
   })
 );
 
+studentapp.put(
+  "/copy-last-month-accounts",
+  verifytoken,
+  expressAsyncHandler(async (request, response) => {
+    const studentCollection = request.app.get("studentCollection");
+    const userCollection = request.app.get("userCollection");
+    const userId = request.user.id;
+    const { year, month } = request.query;
 
+    if (!year || !month) {
+      return response.status(400).send({ message: "Year and month are required" });
+    }
+
+    const userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
+    if (!userOfDB) {
+      return response.status(401).send({ message: "Invalid User" });
+    }
+    if (userOfDB.role !== "admin") {
+      return response.status(403).send({ message: "Unauthorized user" });
+    }
+
+    // Calculate previous month/year
+    let prevMonth = Number(month) - 1;
+    let prevYear = Number(year);
+    if (prevMonth === 0) {
+      prevMonth = 12;
+      prevYear = prevYear - 1;
+    }
+
+    // Find all students
+    const students = await studentCollection.find({}).toArray();
+    let updatedCount = 0;
+    for (const stu of students) {
+      const pd = stu.Payment_Details || {};
+      const prevMonthData = pd[String(prevYear)]?.[String(prevMonth)];
+      const thisMonthData = pd[year]?.[month];
+
+      // Only copy if previous month exists and this month does NOT exist
+      if (prevMonthData && !thisMonthData) {
+        // Deep copy to avoid reference issues
+        const newMonthData = JSON.parse(JSON.stringify(prevMonthData));
+        // Optionally reset payment_status, Payment_Date, Due_Date, etc.
+        newMonthData.payment_status = "Not Paid";
+        newMonthData.Payment_Date = "";
+        newMonthData.Due_Date = `${year}-${month.toString().padStart(2, "0")}-17`;
+
+        // Set in Payment_Details
+        if (!pd[year]) pd[year] = {};
+        pd[year][month] = newMonthData;
+
+        await studentCollection.updateOne(
+          { _id: stu._id },
+          { $set: { Payment_Details: pd } }
+        );
+        updatedCount++;
+      }
+    }
+
+    response.status(200).send({
+      message: `Copied last month's accounts for ${updatedCount} students.`,
+    });
+  })
+);
 
 studentapp.put(
   "/soft-add-student",
   verifytoken,
   expressAsyncHandler(async (request, response) => {
     const studentCollection = request.app.get("studentCollection");
-
-    let modifiedStudent = request.body;
+    let { _id, selectedYear, selectedMonthNum, paymentData } = request.body;
     const userCollection = request.app.get("userCollection");
     const userId = request.user.id;
 
     // Verify user
     let userOfDB = await userCollection.findOne({ _id: new ObjectId(userId) });
-
     if (!userOfDB) {
-      return response.status(200).send({ message: "Invalid User" });
+      return response.status(401).send({ message: "Invalid User" });
     }
 
     // Only allow admin
-    if (userOfDB.role === "admin") {
-      if (!modifiedStudent._id) {
-        return response.status(400).send({ message: "Student ID is required" });
-      }
+    if (userOfDB.role !== "admin") {
+      return response.status(403).send({ message: "Unauthorized user" });
+    }
 
-      const studentId = new ObjectId(modifiedStudent._id);
-      delete modifiedStudent._id;
+    if (!_id || !selectedYear || !selectedMonthNum || !paymentData) {
+      return response.status(400).send({ message: "Student ID, year, month, and payment data are required" });
+    }
 
-      const result = await studentCollection.updateOne(
-        { _id: studentId },
-        { $set: modifiedStudent }
-      );
+    const studentId = new ObjectId(_id);
 
-      if (result.modifiedCount > 0) {
-        response.status(200).send({ message: "Student Account has been Added successfully" });
-      } else {
-        response.status(400).send({ message: "No changes made or student not found" });
-      }
+    // Set only the nested Payment_Details for the selected year/month
+    const updatePath = `Payment_Details.${selectedYear}.${selectedMonthNum}`;
+    const result = await studentCollection.updateOne(
+      { _id: studentId },
+      { $set: { [updatePath]: paymentData } }
+    );
+
+    if (result.modifiedCount > 0) {
+      response.status(200).send({ message: "Student Account has been added successfully" });
     } else {
-      response.status(200).send({ message: "Unauthorized user" });
+      response.status(400).send({ message: "No changes made or student not found" });
     }
   })
 );

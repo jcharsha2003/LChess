@@ -72,7 +72,7 @@
 
 /* collapsed Naming  */
 
-.s-bat,.s-das,.s-stu,.dss,.s-coac,.s-acc{
+.s-bat,.s-das,.s-stu,.dss,.s-coac,.s-acc,.s-due{
   position: relative;
 }
 .s-das::before {
@@ -159,11 +159,28 @@
   z-index: 100; /* Ensures visibility above other elements */
 }
 
+.s-due::before {
+  content: "Due";  /* The title text */
+  position: absolute;
+  top: 40px; /* Moves the text above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  /* Dark background for visibility */
+  color: black;
+ 
+  font-size: 12px;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease-in-out;
+  z-index: 100; /* Ensures visibility above other elements */
+}
+
 .dss::before {
   content: "Click the Check box to delete";  /* The title text */
   position: absolute;
-  top: 2%; /* Moves the text above the button */
-  left: 280%;
+   top: 100%; /* Moves the text below the button */
+  left: 50%;
   transform: translateX(-50%);
   /* Dark background for visibility */
   color: black;
@@ -175,7 +192,7 @@
   transition: opacity 0.3s ease-in-out;
   z-index: 100; /* Ensures visibility above other elements */
 }
-.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before,.dss:hover::before,.s-coac:hover::before,.s-acc:hover::before{
+.s-bat:hover::before,.s-das:hover::before ,.s-stu:hover::before,.dss:hover::before,.s-coac:hover::before,.s-acc:hover::before,.s-due:hover::before{
   opacity: 1; /* Show on hover */
 }
 

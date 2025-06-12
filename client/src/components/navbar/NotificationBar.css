@@ -1,0 +1,80 @@
+/* Remove left dot from dropdown notifications */
+.navbar-nav .dropdown-menu li {
+  list-style: none;
+}
+
+.dropdown-menu {
+  overflow: visible !important;
+  position: relative; /* <-- Must be relative for the arrow to position correctly */
+  max-width: 50rem;
+  box-sizing: border-box;
+  border-radius: 12px;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  right: 0;
+  left: auto;
+}
+
+/* Responsive and scrollable notification list */
+.dropdown-menu.dropdown-menu-end {
+  max-height: 350px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* Nice scrollbar for notifications */
+.dropdown-menu.dropdown-menu-end::-webkit-scrollbar {
+  width: 6px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+.dropdown-menu.dropdown-menu-end::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border-radius: 8px;
+}
+
+/* Bigger, round, cute notification badge with higher z-index and moved down */
+.notif-badge-sm {
+  position: absolute; /* Needed for top to work */
+  font-size: 1rem !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  line-height: 22px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  box-shadow: 0 0 2px #8882 !important;
+  z-index: 1051 !important;
+  top: -30px; /* Moves badge further down */
+  right: -25px; /* Moves badge further right */
+}
+
+/* Arrow at the top right of the dropdown, outside the box */
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -16px; /* Place arrow fully outside */
+  right: 36px; /* Adjust to align with bell icon */
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 12px solid #fff;
+  z-index: 1060;
+  pointer-events: none;
+}
+
+/* Responsive: on small screens, make dropdown full width and centered */
+@media (max-width: 600px) {
+  .dropdown-menu {
+    max-width: 300px;
+    right: -40px !important;
+  }
+
+  .notif-badge-sm {
+    top: 44%; /* Move badge further down on mobile if needed */
+  }
+}
