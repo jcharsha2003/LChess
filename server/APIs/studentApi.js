@@ -531,10 +531,20 @@ studentapp.put(
       if (prevMonthData && !thisMonthData) {
         // Deep copy to avoid reference issues
         const newMonthData = JSON.parse(JSON.stringify(prevMonthData));
-        // Optionally reset payment_status, Payment_Date, Due_Date, etc.
+        // Reset payment_status and Payment_Date
         newMonthData.payment_status = "Not Paid";
         newMonthData.Payment_Date = "";
-        newMonthData.Due_Date = `${year}-${month.toString().padStart(2, "0")}-17`;
+
+        // Set Due_Date to same day as previous, but with new year and month
+        if (prevMonthData.Due_Date) {
+          const prevDue = new Date(prevMonthData.Due_Date);
+          const day = prevDue.getDate().toString().padStart(2, "0");
+          // Format: yyyy-mm-dd
+          newMonthData.Due_Date = `${year}-${month.toString().padStart(2, "0")}-${day}`;
+        } else {
+          // fallback if no previous due date
+          newMonthData.Due_Date = `${year}-${month.toString().padStart(2, "0")}-01`;
+        }
 
         // Set in Payment_Details
         if (!pd[year]) pd[year] = {};

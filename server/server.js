@@ -3,7 +3,9 @@ const exp = require("express");
 const app = exp();
 const cors=require("cors");
 app.use(cors());
-
+// filepath: d:\LChess\server\server.js
+const cron = require('node-cron');
+const generateMonthlyNotifications = require('./cron/generateMonthlyNotifications');
 
 
 app.use(cors({ origin: true }));
@@ -16,15 +18,7 @@ const path = require("path");
 app.use(exp.static(path.join(__dirname,"../client/build")));
 
 require("dotenv/config");
-// filepath: d:\LChess\server\server.js
-const cron = require('node-cron');
-const generateMonthlyNotifications = require('./cron/generateMonthlyNotifications');
 
-// Schedule the job to run every day at midnight
-cron.schedule('0 0 * * *', () => {
-  // Pass your collections if needed, or require them inside generateMonthlyNotifications
-  generateMonthlyNotifications();
-});
 app.get("/",(req,res)=>{
   res.json("HELLO");
 })
@@ -42,6 +36,11 @@ connectDB()
     app.set("notificationCollection", collections.notificationCollection);
     console.log("Connected to DB successfully");
     // ...rest of your code (API setup, etc.)
+ // Schedule the job to run every day at midnight
+cron.schedule('0 0 * * *', () => {
+  generateMonthlyNotifications();
+});
+
   })
   .catch((err) => {
     console.error("Database connection error:", err);
@@ -59,6 +58,7 @@ app.use("/user-api", userapp);
 app.use("/batch-api", batchapp);
 app.use("/student-api", studentapp);
 app.use("/coach-api", coachapp);
+
 
 
 

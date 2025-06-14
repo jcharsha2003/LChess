@@ -1280,17 +1280,19 @@ const openNew = () => {
       </div>
       <Dialog
         visible={studentDialog}
-        style={{ width: "32rem" }}
-        breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+       style={{ width: "80vw" }}
+  breakpoints={{ "960px": "75vw", "641px": "90vw" }}
         header="Student Details"
         modal
-        className="p-fluid"
+        className="p-fluid "
         footer={studentDialogFooter}
         onHide={hideDialog}
       >
-        <form className="mt-5">
+        <form className="mt-5 ">
        
           <div className="container ecat">
+              <div className="row justify-content-center">
+        <div className="col-lg-6">
             <div className="inputbox4 form-floating">
               <i className="fa-regular fa-user"></i>
 
@@ -1311,7 +1313,8 @@ const openNew = () => {
                 <p className=" text-danger">*enter Student full name</p>
               )}
             </div>
-            <div className="inputbox4 form-floating">
+            </div>
+               <div className="col-lg-6"><div className="inputbox4 form-floating">
               <i className="fa-regular fa-user"></i>
 
               <input
@@ -1330,9 +1333,11 @@ const openNew = () => {
               {errors.Full_Name?.type === "required" && (
                 <p className=" text-danger">*enter Student full name</p>
               )}
+            </div></div>
+            
             </div>
-             {/* status */}
-             <div className="field mb-5">
+              <div className="row justify-content-center">
+        <div className="col-lg-6">   {/* status */}  <div className="field mb-5">
             <i className="fa-solid fa-battery-full"></i>
   <label htmlFor="status" className="mb-2">Status</label>
   <select
@@ -1346,8 +1351,8 @@ const openNew = () => {
     <option value="Inactive">Inactive</option>
   </select>
   {errors.status && <small className="p-error">{errors.status.message}</small>}
-</div>
-            <div className="inputbox4 form-floating">
+</div></div>
+ <div className="col-lg-6">  <div className="inputbox4 form-floating">
               <i className="fa-solid fa-person-breastfeeding"></i>
 
               <input
@@ -1366,8 +1371,11 @@ const openNew = () => {
               {errors.Parent?.type === "required" && (
                 <p className=" text-danger">*enter Parent name</p>
               )}
+            </div></div>
             </div>
-            <div className="inputbox4 form-floating">
+            
+          <div className="row justify-content-center">
+        <div className="col-lg-6"> <div className="inputbox4 form-floating">
               <i className="fa-solid fa-child"></i>
 
               <input
@@ -1386,8 +1394,8 @@ const openNew = () => {
               {errors.Age?.type === "required" && (
                 <p className=" text-danger">*enter Age</p>
               )}
-            </div>
-            <div className="field mb-5">
+            </div></div>
+        <div className="col-lg-6">   <div className="field mb-5">
   <i className="fa-solid fa-layer-group"></i>
   <label htmlFor="Batch" className="mb-2">Batch</label>
   <div style={{ maxHeight: "150px", overflowY: "auto" }}>
@@ -1408,9 +1416,11 @@ const openNew = () => {
     <small className="p-error">{errors.Batch.message}</small>
   )}
 </div>
-
-            {/* Gender Radio */}
-            <div className="field mb-5">
+</div></div>
+          
+           
+          <div className="row justify-content-center">
+        <div className="col-lg-6">  <div className="field mb-5">
               <i className="fa-solid fa-venus-mars"></i>
               <label htmlFor="Gender" className="mb-2">
                 Gender
@@ -1432,9 +1442,8 @@ const openNew = () => {
               {errors.Gender && (
                 <small className="p-error">{errors.Gender.message}</small>
               )}
-            </div>
-
-            <div className="inputbox4 form-floating">
+            </div></div>
+         <div className="col-lg-6"><div className="inputbox4 form-floating">
               <i className="fa-solid fa-envelope"></i>
               <input
                 type="email"
@@ -1458,9 +1467,12 @@ const openNew = () => {
                 errors.Email_Address.type === "pattern" && (
                   <p className="text-danger">*enter valid email address</p>
                 )}
-            </div>
+            </div></div></div>
+            {/* Gender Radio */}
+          
 
-            <div className="joining-date mb-5">
+             <div className="row justify-content-center">
+        <div className="col-lg-6"><div className="joining-date mb-5">
               <label htmlFor="Enrollment_Date" className="text-dark mb-3">
                 Joining Date
               </label>
@@ -1488,8 +1500,8 @@ const openNew = () => {
                   {errors.Enrollment_Date.message}
                 </span>
               )}
-            </div>
-            <div className="inputbox4 form-floating">
+            </div></div>
+        <div className="col-lg-6">  <div className="inputbox4 form-floating">
               <i className="fa-solid fa-earth-americas"></i>
               <input
                 type="text"
@@ -1505,9 +1517,10 @@ const openNew = () => {
               {errors.Country?.type === "required" && (
                 <p className=" text-danger">*enter Country</p>
               )}
-            </div>
+            </div></div></div>
 
-            <div className="inputbox4 form-floating">
+             <div className="row justify-content-center">
+        <div className="col-lg-6">            <div className="inputbox4 form-floating">
               <i className="fa-solid fa-location-dot"></i>
               <input
                 type="text"
@@ -1523,8 +1536,8 @@ const openNew = () => {
               {errors.Address?.type === "required" && (
                 <p className=" text-danger">*enter Address</p>
               )}
-            </div>
-            <div className="field mb-5">
+            </div></div>
+        <div className="col-lg-6">   <div className="field mb-5">
   <i className="fa-solid fa-person-chalkboard"></i>
   <label htmlFor="Coach" className="mb-2">Coach</label>
   <div style={{ maxHeight: "150px", overflowY: "auto" }}>
@@ -1563,7 +1576,10 @@ const openNew = () => {
   {errors.Coach && (
     <small className="p-error">{errors.Coach.message}</small>
   )}
-</div>
+</div></div></div>
+
+
+         
 
 
 

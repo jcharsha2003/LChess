@@ -916,8 +916,8 @@ const Coach = () => {
           </div>
           <Dialog
             visible={CoachDialog}
-            style={{ width: "32rem" }}
-            breakpoints={{ "960px": "75vw", "641px": "90vw" }}
+             style={{ width: "80vw" }}
+  breakpoints={{ "960px": "75vw", "641px": "90vw" }}
             header="Coach Details"
             modal
             className="p-fluid"
@@ -926,8 +926,8 @@ const Coach = () => {
           >
             <form className="mt-5">
               <div className="container ecat">
-              
-                <div className="inputbox4 form-floating">
+                 <div className="row justify-content-center">
+        <div className="col-lg-6"> <div className="inputbox4 form-floating">
                   <i className="fa-regular fa-user"></i>
     
                   <input
@@ -947,8 +947,8 @@ const Coach = () => {
                     <p className=" text-danger">*enter Coach full name</p>
                   )}
                 </div>
-                
-                <div className="inputbox4 form-floating">
+                </div>
+        <div className="col-lg-6">  <div className="inputbox4 form-floating">
                   <i className="fa-solid fa-child"></i>
     
                   <input
@@ -968,10 +968,12 @@ const Coach = () => {
                     <p className=" text-danger">*enter Age</p>
                   )}
                 </div>
+               </div></div>
                
+              
                 {/* Gender Radio */}
-    
-                <div className="field mb-5">
+       <div className="row justify-content-center">
+        <div className="col-lg-6"><div className="field mb-5">
   <i className="fa-solid fa-venus-mars"></i>
   <label htmlFor="Gender" className="mb-2">Gender</label>
   <select
@@ -985,9 +987,8 @@ const Coach = () => {
     <option value="Female">Female</option>
   </select>
   {errors.Gender && <small className="p-error">{errors.Gender.message}</small>}
-</div>
-    
-                <div className="inputbox4 form-floating">
+</div></div>
+        <div className="col-lg-6"> <div className="inputbox4 form-floating">
                   <i className="fa-solid fa-envelope"></i>
                   <input
                     type="email"
@@ -1011,10 +1012,12 @@ const Coach = () => {
                     errors.Email_Address.type === "pattern" && (
                       <p className="text-danger">*enter valid email address</p>
                     )}
-                </div>
+                </div></div></div>
+                
     
-    
-                <div className="field  ">
+               
+       <div className="row justify-content-center">
+        <div className="col-lg-6">   <div className="field  ">
                 <label htmlFor="Address" className="text-dark">
                     Address
                   </label>
@@ -1034,10 +1037,8 @@ const Coach = () => {
                   {errors.Address?.type === "required" && (
                     <p className=" text-danger">*enter Address</p>
                   )}
-                </div>
-
-                
-                <div className="inputbox4 form-floating">
+                </div></div>
+        <div className="col-lg-6"> <div className="inputbox4 form-floating">
                   <i className="fa-regular fa-user"></i>
     
                   <input
@@ -1056,8 +1057,13 @@ const Coach = () => {
                   {errors.Payment_id?.type === "required" && (
                     <p className=" text-danger">*enter Coach  Payment ID</p>
                   )}
-                </div>
-             {/* status */}
+                </div></div></div>
+    
+             
+
+                
+                  <div className="row justify-content-center">
+        <div className="col-lg-6">  {/* status */}
             <div className="field mb-5">
             <i className="fa-solid fa-battery-full"></i>
   <label htmlFor="status" className="mb-2">Status</label>
@@ -1072,9 +1078,8 @@ const Coach = () => {
     <option value="Inactive">Inactive</option>
   </select>
   {errors.status && <small className="p-error">{errors.status.message}</small>}
-</div>
-
-                <div className="mb-5 me-5 d-block">
+</div></div>
+        <div className="col-lg-6">   <div className="mb-5 me-5 d-block">
               <label className="form-label">WhatsApp Number</label>
               <Controller
   name="Whatsapp"
@@ -1126,7 +1131,10 @@ const Coach = () => {
                   {errors.Whatsapp.message}
                 </p>
               )}
-            </div>
+            </div></div></div>
+           
+
+             
 
             {/* batches that coach teaches  */}
 

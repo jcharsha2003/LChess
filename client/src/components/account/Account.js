@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef ,useMemo,useContext } from "react";
+import React, { useState, useEffect, useRef ,useMemo,useContext,useCallback } from "react";
 import "./Account.css";
 import { FaMoneyCheckAlt } from "react-icons/fa";
 import { MdScheduleSend } from "react-icons/md";
@@ -156,7 +156,7 @@ const Account = () => {
   let [students, setStudents] = useState([]);
   let [studentDetails, setStudentDetails] = useState([]);
   let [orgStudents, setOrgStudents] = useState([]);
-  const getStudents = (ayear, amonth) => {
+  const getStudents = useCallback((ayear, amonth) => {
     axios
       .get(
         `${process.env.REACT_APP_API_URL}/student-api/get-student-accounts`,
@@ -307,7 +307,7 @@ const Account = () => {
           });
         }
       });
-  };
+  }, [token]);
   let [Coaches, setCoaches] = useState([]);
   const getCoaches = () => {
     axios
@@ -1701,28 +1701,32 @@ const copyLastMonthAccounts = () => {
     if (noCoachName && noCoachFee) {
       setStudentDetails(getStudentDetails(students, selectedYear, selectedMonthNum));
     } else {
-      const filtered = students.filter((s) =>
-        (s.coach_fees || []).some((fee) => {
-          const nameMatch = noCoachName || coachNameFilter.includes(fee.coach_name);
-          const feeMatch = noCoachFee || fee.coach_fee >= Number(coachFeeFilter);
-          return nameMatch && feeMatch;
-        })
-      );
-      const flat = [];
-      filtered.forEach((s) => {
-        const cfs = s.coach_fees || [];
-        cfs.forEach((cf, i) => {
-          flat.push({
-            ...s,
-            coach_payment_detail: `${cf.coach_name} : ${cf.coach_fee}`,
-            _rowSpanIndex: i,
-            _totalCoachEntries: cfs.length,
-            unique_key: `${s._id || s.Client_ID}_${i}`,
-          });
-        });
+  const filtered = students.filter((s) => {
+    const pd = s.Payment_Details?.[selectedYear]?.[selectedMonthNum];
+    const coachFees = pd?.coach_fees || [];
+    return coachFees.some((fee) => {
+      const nameMatch = noCoachName || coachNameFilter.includes(fee.coach_name);
+      const feeMatch = noCoachFee || fee.coach_fee >= Number(coachFeeFilter);
+      return nameMatch && feeMatch;
+    });
+  });
+
+  const flat = [];
+  filtered.forEach((s) => {
+    const pd = s.Payment_Details?.[selectedYear]?.[selectedMonthNum];
+    const cfs = pd?.coach_fees || [];
+    cfs.forEach((cf, i) => {
+      flat.push({
+        ...s,
+        coach_payment_detail: `${cf.coach_name} : ${cf.coach_fee}`,
+        _rowSpanIndex: i,
+        _totalCoachEntries: cfs.length,
+        unique_key: `${s._id || s.Client_ID}_${i}`,
       });
-      setStudentDetails(flat);
-    }
+    });
+  });
+  setStudentDetails(flat);
+}
   }, [
     coachNameFilter,
     coachFeeFilter,
@@ -1766,6 +1770,16 @@ const copyLastMonthAccounts = () => {
     calcTotals();
   }, [students, selectedYear, selectedMonthNum, dataReady]);
 
+
+    const notificationCtx = useContext(NotificationContext);
+
+useEffect(() => {
+  if (notificationCtx) {
+    notificationCtx.setSelectedYear(selectedYear);
+    notificationCtx.setSelectedMonthNum(selectedMonthNum);
+    notificationCtx.setRefreshStudents(() => getStudents);
+  }
+}, [notificationCtx, selectedYear, selectedMonthNum, getStudents]);
 
   return (
     <div>

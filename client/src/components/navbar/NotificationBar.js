@@ -7,71 +7,103 @@ import "./NotificationBar.css";
 
 const NotificationBar = () => {
   const { notifications, markAsRead, removeNotification, clearRead } = useContext(NotificationContext);
+  const { selectedYear, selectedMonthNum, refreshStudents } = useContext(NotificationContext);
   const dropdownRef = useRef();
+
+// Helper to check if Copy Last Month should be enabled
+function canCopyLastMonth(notif) {
+  if (!notif.prevMonthData) return false;
+  // Only enable if the earliest unpaid due date is the previous month
+  // Parse previous month/year
+  let prevMonth = Number(notif.month) - 1;
+  let prevYear = Number(notif.year);
+  if (prevMonth === 0) {
+    prevMonth = 12;
+    prevYear = prevYear - 1;
+  }
+  // Earliest unpaid due date info is in the message (e.g., "Earliest unpaid due date was 2025-04-01")
+  // We'll extract the year and month from that string if present
+  const match = notif.message?.match(/Earliest unpaid due date was (\d{4})-(\d{2})-\d{2}/);
+  if (match) {
+    const [ , earliestYear, earliestMonth ] = match;
+    return Number(earliestYear) === prevYear && Number(earliestMonth) === prevMonth;
+  }
+  // If not present, fallback to enabling if prevMonthData exists
+  return true;
+}
+
 
   // Prevent dropdown from closing on click inside
   const handleDropdownClick = (e) => e.stopPropagation();
 
   // Handler for copying previous month data
-  const handleCopyLastMonth = async (notif) => {
-    const year = notif.year;
-    const month = notif.month;
-    const prev = notif.prevMonthData;
+const handleCopyLastMonth = async (notif) => {
+  const year = notif.year;
+  const month = notif.month;
+  const prev = notif.prevMonthData;
 
-    const newMonthData = {
-      Currency: prev.Currency || "",
-      Payment_Amount: prev.Payment_Amount || 0,
-      coach_fees: (prev.coach_fees || []).map(fee => ({
-        coach_name: fee.coach_name || "",
-        coach_fee: fee.coach_fee || 0
-      })),
-      profit: prev.profit || 0,
-      percentage_profit: prev.percentage_profit || 0,
-      Payment_Date: "",
-      Due_Date: `${year}-${month.toString().padStart(2, "0")}-17`,
-      payment_status: "Not Paid"
-    };
+  if (!prev) {
+    toast.error("Previous month data not available for this student.", {
+      position: "top-right",
+      autoClose: 4000,
+      theme: "colored",
+    });
+    return;
+  }
 
-    const updateObj = {
-      _id: notif.studentId,
-      Payment_Details: {
-        [year]: {
-          [month]: newMonthData
-        }
-      }
-    };
-
-    axios.put(`${process.env.REACT_APP_API_URL}/student-api/soft-update-student`, updateObj, {
-      headers: { Authorization: "Bearer " + sessionStorage.getItem("token") }
-    })
-      .then((response) => {
-        toast.success(response.data.message, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-        removeNotification(notif._id);
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || err.message, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-      });
+  const newMonthData = {
+    Currency: prev.Currency || "",
+    Payment_Amount: prev.Payment_Amount || 0,
+    coach_fees: (prev.coach_fees || []).map(fee => ({
+      coach_name: fee.coach_name || "",
+      coach_fee: fee.coach_fee || 0
+    })),
+    profit: prev.profit || 0,
+    percentage_profit: prev.percentage_profit || 0,
+    Payment_Date: "",
+    Due_Date: prev.Due_Date
+      ? (() => {
+          const prevDue = new Date(prev.Due_Date);
+          const day = prevDue.getDate().toString().padStart(2, "0");
+          return `${year}-${month.toString().padStart(2, "0")}-${day}`;
+        })()
+      : `${year}-${month.toString().padStart(2, "0")}-01`,
+    payment_status: "Not Paid"
   };
+
+  const updateObj = {
+    _id: notif.studentId,
+    Payment_Details: {
+      [year]: {
+        [month]: newMonthData
+      }
+    }
+  };
+
+  axios.put(`${process.env.REACT_APP_API_URL}/student-api/soft-update-student`, updateObj, {
+    headers: { Authorization: "Bearer " + sessionStorage.getItem("token") }
+  })
+    .then((response) => {
+      toast.success(response.data.message, {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+        transition: Bounce,
+      });
+      removeNotification(notif._id);
+       if (typeof refreshStudents === "function" && selectedYear && selectedMonthNum) {
+      refreshStudents(selectedYear, selectedMonthNum);
+    }
+    })
+    .catch((err) => {
+      toast.error(err.response?.data?.message || err.message, {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+        transition: Bounce,
+      });
+    });
+};
 
   // Handler for "Clear All" button
   const handleClearRead = () => {
@@ -213,12 +245,13 @@ const NotificationBar = () => {
                 </div>
               </div>
               <div>
-                <button
-                  className="btn btn-sm btn-primary mt-2 me-2"
-                  onClick={() => handleCopyLastMonth(notif)}
-                >
-                  Copy Last Month
-                </button>
+              <button
+  className="btn btn-sm btn-primary mt-2 me-2"
+  onClick={() => handleCopyLastMonth(notif)}
+  disabled={!canCopyLastMonth(notif)}
+>
+  Copy Last Month
+</button>
                 <button
                   className="btn btn-sm btn-secondary mt-2 me-2"
                   disabled={notif.read}

@@ -1,38 +1,26 @@
-const jwt=require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
+const verifyToken = (request, response, next) => {
+  // Get bearer token from headers
+  const bearerToken = request.headers.authorization;
 
+  if (!bearerToken || !bearerToken.startsWith("Bearer ")) {
+    return response.status(401).json({ message: "Unauthorized: No token provided" });
+  }
 
-const verifyToken=(request,response,next)=>{
-    // token verification logic
-    // get bearer token from headers of req
-    
-    let bearerToken=request.headers.authorization;
-    // if bearer token is not exsited,unauthorized req
-   if(bearerToken===undefined){
-    response.send({message:"unauthorized"})
-   }
-    // if bearer token is existed, get token
-    else{
-        
-        const token=bearerToken.split(" ")[1]
-       // verify token using secret key
-       try{
-       
-        const decoded = jwt.verify(token, "abcdef"); // Verify token
-        request.user = decoded; 
-        
-        next();
-       }
-       catch(err){
-        console.log(err);
-       }
-       
+  const token = bearerToken.split(" ")[1];
+  if (!token) {
+    return response.status(401).json({ message: "Unauthorized: Token missing" });
+  }
 
-    }
-    
+  try {
+    const decoded = jwt.verify(token, "abcdef"); // Use your secret key
+    request.user = decoded;
+    next();
+  } catch (err) {
+    console.log("JWT Error:", err.message);
+    return response.status(401).json({ message: "Unauthorized: Invalid or expired token" });
+  }
+};
 
-    // if token is valid,allow to access protect route
-    // else,ask to login again
-
-}
-module.exports=verifyToken;
+module.exports = verifyToken;

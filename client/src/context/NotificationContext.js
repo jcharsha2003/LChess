@@ -6,16 +6,26 @@ export const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
-
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedMonthNum, setSelectedMonthNum] = useState(null);
+  const [refreshStudents, setRefreshStudents] = useState(() => () => {});
   // Fetch notifications on mount
   useEffect(() => {
+  const fetchNotifications = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/notify-api/get-notifications`, {
         headers: { Authorization: "Bearer " + sessionStorage.getItem("token") }
       })
       .then(res => setNotifications(res.data.payload || []))
       .catch(() => setNotifications([]));
-  }, []);
+  };
+
+  fetchNotifications(); // initial fetch
+
+  const interval = setInterval(fetchNotifications, 15000); // every 15 seconds
+
+  return () => clearInterval(interval);
+}, []);
 
   // Mark as read
   const markAsRead = (id) => {
@@ -108,7 +118,13 @@ export const NotificationProvider = ({ children }) => {
       notifications,
       markAsRead,
       removeNotification,
-      clearRead
+      clearRead,
+      selectedYear,
+      setSelectedYear,
+      selectedMonthNum,
+      setSelectedMonthNum,
+      refreshStudents,
+      setRefreshStudents,
     }}>
       {children}
     </NotificationContext.Provider>
