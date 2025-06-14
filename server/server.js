@@ -36,7 +36,7 @@ connectDB()
     app.set("notificationCollection", collections.notificationCollection);
     console.log("Connected to DB successfully");
     // ...rest of your code (API setup, etc.)
- // Schedule the job to run every day at midnight
+    // Schedule the job to run every day at midnight
 cron.schedule('0 0 * * *', () => {
   generateMonthlyNotifications();
 });

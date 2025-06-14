@@ -66,6 +66,8 @@ module.exports = async function generateMonthlyNotifications() {
 
       // --- DUE SOON / MISSING ACCOUNT OVERDUE NOTIFICATION ---
       if (!currMonthData) {
+        // Only if account does NOT exist for this month
+
         // Find last paid month
         const lastPaid = getLastPaidMonth(paymentDetails, year, month);
 
@@ -116,7 +118,6 @@ module.exports = async function generateMonthlyNotifications() {
         }
 
         // --- MISSING ACCOUNT OVERDUE: Walk back through all previous months for unpaid/overdue ---
-        let foundUnpaid = false;
         let y = Number(year);
         let m = Number(month) - 1;
         while (y >= 2000) {
@@ -151,7 +152,6 @@ module.exports = async function generateMonthlyNotifications() {
                   createdAt: new Date()
                 });
               }
-              foundUnpaid = true;
               break; // Only notify for the earliest found
             }
           }
@@ -166,6 +166,7 @@ module.exports = async function generateMonthlyNotifications() {
 
       // --- OVERDUE NOTIFICATION ---
       if (currMonthData) {
+        // Only if account exists for this month
         const paymentStatus = (currMonthData.payment_status || "").trim().toLowerCase();
         const dueDateStr = currMonthData.Due_Date;
         if (!dueDateStr || paymentStatus === "paid") continue;
