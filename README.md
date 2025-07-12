@@ -1,6 +1,19 @@
 # ♟️ LChess Admin Dashboard
 
 A full-stack **Admin Dashboard** for managing a global **Chess Learning Platform**, built to streamline operations such as student management, coach assignments, batch schedules, and international fee tracking with real-time currency conversion.  
+**Live App**: [LChess.com](https://l-chess.vercel.app/)  
+**GitHub Repo**: [GitHub Link](https://github.com/jcharsha2003/LChess)
+## It will take time to log in ,because we use a free server 
+## 🔐 Login Credentials (For Demo)
+
+You can use the following credentials to log in and explore the system:
+
+### 👑 Admin Login
+- **Username**: `shourya.iitb@gmail.com`
+- **Password**: `shourya`
+
+> ⚠️ This account is for testing purposes only. Always update credentials and enforce strong password policies in production.
+
 
 > 💼 Built for both **Admins** and **Super Admins**, this dashboard makes it easy to run your chess academy — whether it’s a small coaching center or a global learning platform.
 
